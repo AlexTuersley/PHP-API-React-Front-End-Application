@@ -160,6 +160,7 @@ class JSONpage {
 
   }
   private function json_login(){
+    include('pdodb.class.php');
     $data = json_decode(file_get_contents("php://input"));
     $email = isset($data->email) ? filter_var($data->email,FILTER_SANITIZE_STRING,FILTER_NULL_ON_FAILURE) : null;
     $password = isset($data->password) ? filter_var($data->password,FILTER_SANITIZE_STRING,FILTER_NULL_ON_FAILURE) : null;
