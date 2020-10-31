@@ -32,9 +32,14 @@ class JSONpage {
                   $this->page = $this->json_schedule();
                 }
             }
-            elseif($pathArr[1] == "presentations"){
+            elseif($pathArr[1] == "content"){
               //content
-
+              if(isset($pathArr[2])){
+                  $this->page = $this->json_content($pathArr[2]);
+              }
+              else{
+                $this->page = $this->json_content();
+              }
             }
             elseif($pathArr[1]== "authors"){
                 if(isset($pathArr[2])){
@@ -100,16 +105,18 @@ class JSONpage {
    * @param $day is an integer of the day selected, if no day is selected runs a query for all days
    * @return string json query results
    */
-  private function json_schedule($day = 0){
-    if($day > 0){
-      $query = "SELECT slotId, startHour,startMinute, endHour,endMinute, dayString FROM slots
-                WHERE dayInt = :dayint";
-      $day = $this->sanitiseNum($day);
-      $params = ["dayint" => $day];
+  private function json_schedule($slot = 0){
+    if($slot > 0){
+      $query = "SELECT dayString, startHour, startMinute, endHour, endMinute, sessions.sessionId, sessions.name, session_types.name as sessionstype, rooms.name As room, (SELECT authors.name FROM authors JOIN sessions ON authors.authorId = sessions.chairId WHERE sessions.slotId = :slot) as sessionchair FROM slots
+      JOIN sessions ON slots.slotId = sessions.slotId
+      JOIN session_types ON sessions.typeId = session_types.typeId
+      JOIN rooms ON sessions.roomId = rooms.roomId
+      WHERE sessions.slotId = :slot";
+      $slot = $this->sanitiseNum($slot);
+      $params = ["slot" => $slot];
     }
     else{
-      $query = "SELECT DISTINCT dayInt, dayString
-                FROM slots
+      $query = "SELECT slotId,dayInt,dayString,startHour,startMinute,endHour,endMinute,type  FROM slots
                 ORDER BY dayInt
                 LIMIT 4";
       $params = [];
@@ -124,11 +131,12 @@ class JSONpage {
    */ 
   private function json_authors($id = 0){
       if($id > 0){ 
-          $query = "SELECT DISTINCT authors.name, authorInst,title, abstract, award, sessions.name FROM authors
+          $query = "SELECT DISTINCT authors.name, authorInst,title, abstract, award, sessions.name, session_types.name FROM authors
           INNER JOIN content_authors On authors.authorId = content_authors.authorId
           INNER JOIN content ON content_authors.contentId = content.contentId
           INNER JOIN sessions_content ON content.contentId = sessions_content.contentId
           INNER JOIN sessions ON  sessions_content.sessionId = sessions.sessionId 
+          INNER JOIN session_types ON sessions.typeId = session_types.typeId
           WHERE authors.authorId = :authorid";
           $authorId = $this->sanitiseNum($id);
           $params = ["authorid" => $authorId];
@@ -147,12 +155,23 @@ class JSONpage {
       }
       return ($this->recordset->getJSONRecordSet($query, $params));
   }
-  private function json_presentations($id = 0){
+  private function json_content($id = 0){
       if($id > 0){
-
+        $query = "SELECT content.title, content.abstract, content.award, sessions.slotId, session_types.name, sessions.name, slots.startHour, slots.startMinute, slots.endHour, slots.endMinute, slots.dayString, authors.name as author, content_authors.authorInst FROM content
+        JOIN content_authors ON content_authors.contentId = content.contentId
+        JOIN authors ON authors.authorId = content_authors.authorId
+        JOIN sessions_content ON sessions_content.contentId = content.contentId
+        JOIN sessions ON sessions_content.sessionId = sessions.sessionId
+        JOIN slots ON sessions.slotId = slots.slotId
+        JOIN session_types ON sessions.typeId = session_types.typeId
+        WHERE content.contentId = :id
+        ORDER BY sessions.slotId";
+        $id = $this->sanitiseNum($id);
+        $params = ["id" => $id];
       }
       else{
-
+        $query = "SELECT * FROM content";
+        $params = [];
       }
       return ($this->recordset->getJSONRecordSet($query, $params));
   }
