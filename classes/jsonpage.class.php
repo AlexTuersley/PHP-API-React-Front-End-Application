@@ -142,6 +142,7 @@ class JSONpage {
           $params = ["authorid" => $authorId];
       }
       else{
+        
           $query = "SELECT DISTINCT authors.authorId, authors.name, authorInst FROM authors
           INNER JOIN content_authors ON authors.authorId = content_authors.authorId
           ";
@@ -169,9 +170,15 @@ class JSONpage {
         $id = $this->sanitiseNum($id);
         $params = ["id" => $id];
       }
-      else{
+      else{      
         $query = "SELECT * FROM content";
         $params = [];
+        if(isset($_REQUEST['search'])) {
+          $query .= " WHERE title LIKE :content";
+          $content = str_replace("%20"," ", $_REQUEST['search']);
+          $content = $this->sanitiseString("%".$content."%");
+          $params = ["content" => $content];
+        }   
       }
       return ($this->recordset->getJSONRecordSet($query, $params));
   }

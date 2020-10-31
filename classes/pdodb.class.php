@@ -21,17 +21,12 @@ class PDOdb {
  * @access public
  * @todo the catch block should not directly 'echo' output. This will 'cost' you in the coursework.
  */
- public static function getConnection($dbname) {
-   if ( !self::$dbConnection ) {
-     try {           
-       self::$dbConnection = new PDO("sqlite:".$dbname);
-       self::$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-     }
-     catch( PDOException $e ) {
-       echo $e->getMessage();
-     }
-   }
-   return self::$dbConnection;
- }
+public static function getConnection($dbname) {
+  if ( !self::$dbConnection ) {
+      self::$dbConnection = new PDO("sqlite:".$dbname);
+      self::$dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  }
+  return self::$dbConnection;
+}
 }
 ?>

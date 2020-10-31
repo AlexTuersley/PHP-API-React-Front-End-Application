@@ -11,15 +11,43 @@ foreach (array_keys($ini['routes']) as $menuitem) {
 }
 define('MENU', $menu);
 
- function autoloadClasses($className) {
+function autoloadClasses($className) {
    $filename = "classes\\" . strtolower($className) . ".class.php";
    $filename = str_replace('\\', DIRECTORY_SEPARATOR, $filename);
    if (is_readable($filename)) {
      include_once $filename;
    } else {
-   	exit("File not found: " . $className . " (" . $filename . ")");
+    throw new exception("File not found: " . $className . " (" . $filename . ")");
    }
 
+}
+
+function exceptionHandler($e) {
+    $msg = array("status" => "500", "message" => $e->getMessage(), "file" => $e->getFile(), "line" => $e->getLine());
+    $usr_msg = array("status" => "500", "message" => "Internal Server Error");
+    header("Access-Control-Allow-Origin: *"); 
+    header("Content-Type: application/json; charset=UTF-8"); 
+    header("Access-Control-Allow-Methods: GET, POST");
+    echo json_encode($usr_msg);
+    logError($msg);
+ }
+
+function errorHandler($errno, $errstr, $errfile, $errline) {
+  if ($errno != 2 && $errno != 8) {
+    throw new Exception("Fatal Error Detected: [$errno] Internal Server Error", 1);
+    logError("Fatal Error Detected: [$errno] $errstr line: $errline");
+
   }
+}
+function logError($Error){
+  $fileHandle = fopen("error_log_file.log", "ab");
+  $errorMsg = date('D M j G:i:s T Y');
+  $errorMsg .= $Error;
+  fwrite($fileHandle, "$errorMsg\r\n");
+  fclose($fileHandle);
+}
+
+set_error_handler('errorHandler');
+set_exception_handler('exceptionHandler');
 spl_autoload_register("autoloadClasses");
 ?>
