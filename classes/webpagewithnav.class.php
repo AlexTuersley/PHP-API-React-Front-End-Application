@@ -4,9 +4,14 @@
 * @author Alex Tuersley
 */
 class WebPageWithNav extends WebPage {
+ //Class variables
  private $nav;
  private $navItems;
 
+ /**
+  * function creates a header for the page
+  * @param $pageHeading1 - string that is the header of the page
+  */
  protected function set_header($pageHeading1) {
    $this->set_nav();
    $nav = $this->nav;
@@ -18,6 +23,10 @@ $nav
 HEADER;
  }
 
+ /**
+  * function creates the navigation menu in html format
+  * @param $listItems - array with all the headers for the menu
+  */
  private function navHTML($listItems) {
    return <<<MYNAV
 <nav>

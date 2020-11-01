@@ -1,16 +1,16 @@
 <?php
 /**
 * This file handles errors and sets the paths to different files and routes based on .ini files
-* 
 * @author Alex Tuersley
-*
 */
 
-
+//parses the ini files for the config and routes
 $ini['routes'] = parse_ini_file("routes.ini",true);
 $ini['main'] = parse_ini_file("config.ini",true);
 
+//define the basepath for the page
 define('BASEPATH', $ini['main']['paths']['basepath']);
+//define the path to the css file
 define('CSSPATH', $ini['main']['paths']['css']);
 
 foreach (array_keys($ini['routes']) as $menuitem) {

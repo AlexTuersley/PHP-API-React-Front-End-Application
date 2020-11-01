@@ -6,6 +6,7 @@
 * 
 */
 abstract class WebPage {
+ //Class variables
  private $main; 
  private $pageStart;
  protected $header; 
@@ -30,6 +31,11 @@ abstract class WebPage {
    $this->set_pageEnd();
  }
 
+ /**
+  * function sets the start of the HTML page
+  * @param $pageTitle - the title of the page
+  * @param $css - The path to the css file
+  */
  private function set_pageStart($pageTitle,$css) {
    $this->pageStart = <<<PAGESTART
 <!DOCTYPE html>
@@ -43,10 +49,17 @@ abstract class WebPage {
 PAGESTART;
  }
 
+ /**
+  * Sets the path to the css on the page
+  */
  private function set_css() {
    $this->css = BASEPATH.CSSPATH; 
  }
 
+ /**
+  * function creates a header for the page
+  * @param $pageHeading1 - string that is the header of the page
+  */
  protected function set_header($pageHeading1) {
    $this->header = <<<HEADER
 <header>
@@ -55,6 +68,10 @@ PAGESTART;
 HEADER;
  }
 
+ /**
+  * function sets up the main content of the page
+  * @param $main - the content of the page that will be displayed
+  */
  private function set_main($main) {
    $this->main = <<<MAIN
 <main>
@@ -63,6 +80,10 @@ HEADER;
 MAIN;
  }
 
+ /**
+  * functions sets the footer of the page
+  * @param $footerText - the text that will appear in the footer of the page
+  */
  private function set_footer($footerText) {
    $this->footer = <<<FOOTER
 <footer>
@@ -71,6 +92,9 @@ MAIN;
 FOOTER;
  }
 
+ /**
+  * sets the end of the page with closing tags
+  */
  private function set_pageEnd() {
    $this->pageEnd = <<<PAGEEND
 </body>
@@ -78,10 +102,18 @@ FOOTER;
 PAGEEND;
  }
 
+ /**
+  * function adds content to the body of the page
+  * @param $text - text that will be added to the main content of the page
+  */
  public function addToBody($text) {
    $this->main .= $text;
  }
 
+ /**
+  * gets all the content from the other functions
+  * @return HTML web page with all the content
+  */
  public function get_page() {
    $this->set_main($this->main);
    return 

@@ -6,13 +6,14 @@
 * 
 */
 class JSONpage {
+  //Class Variables
   private $page; 
   private $recordset;
 
   /**
   * @param $pathArr - an array containing the route information
+  * @param $recordset - The database used for the queries
   */
-  //THIS IS WHERE I PUT THE ROUTING FROM LAST YEAR
   public function __construct($pathArr, $recordset) {
     $this->recordset = $recordset;
     
@@ -77,6 +78,9 @@ class JSONpage {
     return filter_var($x, FILTER_VALIDATE_INT);
   }
 
+  /**
+   * @return JSON data about the api in JSON format
+   */
   private function json_api(){
       $api = array("message"=>"Welcome",
                    "author"=>"Alex Tuersley",
@@ -94,7 +98,7 @@ class JSONpage {
       return json_encode($api);
   } 
   /**
-   * returns a json encoded error message
+   * @return json encoded error message
    */
   private function json_error() {
     $msg = array("message"=>"error");
@@ -127,7 +131,7 @@ class JSONpage {
    * function for author queries
    * @param $id is the id of an author that has been selected 
    * if a search has been run the searched name is grabbed from the url and runs a different query
-   * @return string json query results 
+   * @return JSON data based on query results 
    */ 
   private function json_authors($id = 0){
       if($id > 0){ 
@@ -156,6 +160,11 @@ class JSONpage {
       }
       return ($this->recordset->getJSONRecordSet($query, $params));
   }
+  /**
+   * function for content
+   * @param $id - the id of some content which is used to gather further information about it
+   * @return JSON data based on the query that is ran
+   */
   private function json_content($id = 0){
       if($id > 0){
         $query = "SELECT content.title, content.abstract, content.award, sessions.slotId, session_types.name, sessions.name, slots.startHour, slots.startMinute, slots.endHour, slots.endMinute, slots.dayString, authors.name as author, content_authors.authorInst FROM content
@@ -227,6 +236,10 @@ class JSONpage {
     }
   }
 
+  /**
+   * getter function for the page
+   * @return page
+   */
   public function get_page() {
     return $this->page;
   }
