@@ -3,6 +3,33 @@
 * This file handles errors and sets the paths to different files and routes based on .ini files
 * @author Alex Tuersley
 */
+/**
+ * This fucntion handles exceptions, logging the detailed exception to a file and displaying a basic message to the user
+ */
+function exceptionHandler($e) {
+  $msg = array("status" => "500", "message" => $e->getMessage(), "file" => $e->getFile(), "line" => $e->getLine());
+  $usr_msg = array("status" => "500", "message" => "Internal Server Error");
+  header("Access-Control-Allow-Origin: *"); 
+  header("Content-Type: application/json; charset=UTF-8"); 
+  header("Access-Control-Allow-Methods: GET, POST");
+  echo json_encode($usr_msg);
+  logError($msg);
+}
+
+/**
+* This function is an error handler that shwos the user a basic message and logs the detailed error to a file.
+*/
+function errorHandler($errno, $errstr, $errfile, $errline) {
+  if ($errno != 2 && $errno != 8) {
+    throw new Exception("Fatal Error Detected: [$errno] Internal Server Error", 1);
+    logError("Fatal Error Detected: [$errno] $errstr line: $errline");
+  }
+  else{
+    logError("Fatal Error Detected: [$errno] $errstr line: $errline");
+  }
+}
+set_error_handler('errorHandler');
+set_exception_handler('exceptionHandler');
 
 //parses the ini files for the config and routes
 $ini['routes'] = parse_ini_file("routes.ini",true);
@@ -32,29 +59,7 @@ function autoloadClasses($className) {
 
 }
 
-/**
- * This fucntion handles exceptions, logging the detailed exception to a file and displaying a basic message to the user
- */
-function exceptionHandler($e) {
-    $msg = array("status" => "500", "message" => $e->getMessage(), "file" => $e->getFile(), "line" => $e->getLine());
-    $usr_msg = array("status" => "500", "message" => "Internal Server Error");
-    header("Access-Control-Allow-Origin: *"); 
-    header("Content-Type: application/json; charset=UTF-8"); 
-    header("Access-Control-Allow-Methods: GET, POST");
-    echo json_encode($usr_msg);
-    logError($msg);
- }
 
-/**
- * This function is an error handler that shwos the user a basic message and logs the detailed error to a file.
- */
-function errorHandler($errno, $errstr, $errfile, $errline) {
-  if ($errno != 2 && $errno != 8) {
-    throw new Exception("Fatal Error Detected: [$errno] Internal Server Error", 1);
-    logError("Fatal Error Detected: [$errno] $errstr line: $errline");
-
-  }
-}
 
 /**
  * @param $Error - an error passed from one of the handlers with information on what error has been triggered
@@ -68,8 +73,7 @@ function logError($Error){
   fclose($fileHandle);
 }
 
-set_error_handler('errorHandler');
-set_exception_handler('exceptionHandler');
+
 spl_autoload_register("autoloadClasses");
 
 ?>
