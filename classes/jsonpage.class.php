@@ -52,10 +52,10 @@ class JSONpage {
                 
             }
             elseif($pathArr[1] == "update"){
-    
+              $this->page = $this->json_update();
             }
             elseif($pathArr[1] == "login"){
-    
+              $this->page = $this->json_login();
             }
           
         }
@@ -194,47 +194,33 @@ class JSONpage {
   private function json_update(){
 
   }
+  /**
+   * function gets php input and checks the database to see if the user exists
+   * @return JSON Web token if the user credentials are correct
+   */
   private function json_login(){
-    include('pdodb.class.php');
-    $data = json_decode(file_get_contents("php://input"));
-    $email = isset($data->email) ? filter_var($data->email,FILTER_SANITIZE_STRING,FILTER_NULL_ON_FAILURE) : null;
-    $password = isset($data->password) ? filter_var($data->password,FILTER_SANITIZE_STRING,FILTER_NULL_ON_FAILURE) : null;
-    if(!is_null($email)) {
-      $sqlQuery = "SELECT email, password FROM users WHERE email LIKE :email";
-      $params = array("email" => $email); 
-      $dbConn = pdoDB::getConnection();
-      $queryResult = $dbConn->prepare($sqlQuery);
-      $queryResult->execute($params);
-      $rows = $queryResult->fetchAll(PDO::FETCH_ASSOC);
-      $dbConn = null;
+    $msg = "Invalid request. Username and password required";
+    $status = "400";
+    $token = null;
+    $input = json_decode(file_get_contents("php://input"));
 
-      if (count($rows) > 0) {
-        if (password_verify($password, $rows[0]['password']))
-        {
-          $token = array();
-          $token['email'] = $email;
-          $token['exp'] = "hello";
-          $encodedToken = JWT::encode($token, 'secret_server_key');
+    if (!is_null($input->email) && !is_null($input->password)) {  
+      $query  = "SELECT firstname, lastname, password, admin FROM users WHERE email LIKE :email";
+      $params = ["email" => $input->email];
+      $res = json_decode($this->recordset->getJSONRecordSet($query, $params),true);
 
-          http_response_code(201);
-          echo json_encode(array("message" => "User Logged in.", "token" => $encodedToken));
-        }
-        else {
-          http_response_code(201);
-          echo json_encode(array("message" => "Invalid password."));
-        }
+      if (password_verify($input->password, $res['data'][0]['password'])) {
+        $msg = "User authorised. Welcome ". $res['data'][0]['firstname'] . " " . $res['data'][0]['lastname'];
+        $status = "200";
+        $token = "1234";
+        $admin = $res['data'][0]['admin'];
+      } else { 
+        $msg = "username or password are invalid";
+        $status = "401";
       }
-      else
-      {
-        http_response_code(201);
-        echo json_encode(array("message" => "Account not found."));
-      } 
-    } 
-    else{
-      http_response_code(400);
-      echo json_encode(array("message" => "Error: Data is incomplete."));
     }
-  }
+    return json_encode(array("status" => $status, "message" => $msg, "token" => $token, "admin" => $admin));
+}
 
   /**
    * getter function for the page

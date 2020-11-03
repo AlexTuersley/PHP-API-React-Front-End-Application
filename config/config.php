@@ -4,7 +4,7 @@
 * @author Alex Tuersley
 */
 /**
- * This fucntion handles exceptions, logging the detailed exception to a file and displaying a basic message to the user
+ * This function handles exceptions, logging the detailed exception to a file and displaying a basic message to the user
  */
 function exceptionHandler($e) {
   $msg = array("status" => "500", "message" => $e->getMessage(), "file" => $e->getFile(), "line" => $e->getLine());
