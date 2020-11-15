@@ -1,7 +1,7 @@
 <?php
 /**
 * Return an Associative Array recordset
-* @author YOUR NAME HERE
+* @author Alex Tuersley
 */
 class HTMLRecordSet extends RecordSet {
  private $output = "";
