@@ -211,7 +211,7 @@ class JSONpage {
   private function json_login(){
     $msg = "Invalid request. Username and password required";
     $status = "400";
-    $token = null;
+    $encodedToken = null;
     $input = json_decode(file_get_contents("php://input"));
 
     if (!is_null($input->email) && !is_null($input->password)) {  
@@ -222,14 +222,16 @@ class JSONpage {
       if (password_verify($input->password, $res['data'][0]['password'])) {
         $msg = "User authorised. Welcome ". $res['data'][0]['firstname'] . " " . $res['data'][0]['lastname'];
         $status = "200";
-        $token = JWT::encode($token,"secret_server_key");
+        $token["email"] = $input->email;
+        $token["exp"] = "hello";
+        $encodedToken = JWT::encode($token,"secret_server_key");
         $admin = $res['data'][0]['admin'];
       } else { 
         $msg = "username or password are invalid";
         $status = "401";
       }
     }
-    return json_encode(array("status" => $status, "message" => $msg, "token" => $token, "admin" => $admin));
+    return json_encode(array("status" => $status, "message" => $msg, "token" => $encodedToken, "admin" => $admin));
 }
 
   /**
