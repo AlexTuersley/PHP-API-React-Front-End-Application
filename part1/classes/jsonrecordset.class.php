@@ -14,7 +14,13 @@ function getJSONRecordSet($query, $params = null) {
   $stmt = $this->getRecordSet($query, $params);
   $recordSet = $stmt->fetchAll(PDO::FETCH_ASSOC);
   $nRecords = count($recordSet);
-  return json_encode(array("status" => 200,"count"=>$nRecords, "data"=>$recordSet));                 
+  if($nRecords > 0){
+     $status = 200;
+  }
+  else{
+    $status = 204;
+  }
+  return json_encode(array("status" => $status,"count"=>$nRecords, "data"=>$recordSet));                 
 }
 }
 ?>

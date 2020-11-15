@@ -1,6 +1,6 @@
 <?php
 /**
-* Creates a JSON page based on the parameters
+* Creates a JSON page based on the URL path 
 * 
 * @author Alex Tuersley
 * 
@@ -101,7 +101,7 @@ class JSONpage {
    * @return json encoded error message
    */
   private function json_error() {
-    $msg = array("message"=>"error");
+    $msg = array("status"=>404,"message"=>"error page not found");
     return json_encode($msg);
   }
   /**
