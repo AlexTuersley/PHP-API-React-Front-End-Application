@@ -39,6 +39,8 @@ $ini['main'] = parse_ini_file("config.ini",true);
 define('BASEPATH', $ini['main']['paths']['basepath']);
 //define the path to the css file
 define('CSSPATH', $ini['main']['paths']['css']);
+//defines the secret key used in the JSON Web Token encoding
+define('SECRET_KEY',$ini['main']['database']['secretkey']);
 
 foreach (array_keys($ini['routes']) as $menuitem) {
   $menuitem == "error" ?: $menu[$menuitem] = $menuitem . "/";

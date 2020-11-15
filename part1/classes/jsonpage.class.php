@@ -224,7 +224,7 @@ class JSONpage {
         $status = "200";
         $token["email"] = $input->email;
         $token["exp"] = "hello";
-        $encodedToken = JWT::encode($token,"secret_server_key");
+        $encodedToken = JWT::encode($token,SECRET_KEY);
         $admin = $res['data'][0]['admin'];
       } else { 
         $msg = "username or password are invalid";
