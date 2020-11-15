@@ -191,7 +191,17 @@ class JSONpage {
       }
       return ($this->recordset->getJSONRecordSet($query, $params));
   }
+  /**
+   * function gets JSON Web Token and checks whether it is valid
+   * if the token is valid then function updates 
+   */
   private function json_update(){
+    $msg = "Invalid token. You do not have permission to update";
+    $status = 400;
+    $input = json_decode(file_get_contents("php://input"));
+    $token = $input->token;
+    $admin = $input->admin;
+
 
   }
   /**
@@ -212,7 +222,7 @@ class JSONpage {
       if (password_verify($input->password, $res['data'][0]['password'])) {
         $msg = "User authorised. Welcome ". $res['data'][0]['firstname'] . " " . $res['data'][0]['lastname'];
         $status = "200";
-        $token = "1234";
+        $token = JWT::encode($token,"secret_server_key");
         $admin = $res['data'][0]['admin'];
       } else { 
         $msg = "username or password are invalid";
