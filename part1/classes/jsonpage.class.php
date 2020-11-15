@@ -212,6 +212,7 @@ class JSONpage {
     $msg = "Invalid request. Username and password required";
     $status = "400";
     $encodedToken = null;
+    $admin = null;
     $input = json_decode(file_get_contents("php://input"));
 
     if (!is_null($input->email) && !is_null($input->password)) {  
@@ -219,7 +220,7 @@ class JSONpage {
       $params = ["email" => $input->email];
       $res = json_decode($this->recordset->getJSONRecordSet($query, $params),true);
 
-      if (password_verify($input->password, $res['data'][0]['password'])) {
+      if(password_verify($input->password, $res['data'][0]['password'])) {
         $msg = "User authorised. Welcome ". $res['data'][0]['firstname'] . " " . $res['data'][0]['lastname'];
         $status = "200";
         $token["email"] = $input->email;
