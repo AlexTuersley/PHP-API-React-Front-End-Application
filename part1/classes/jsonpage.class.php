@@ -21,8 +21,8 @@ class JSONpage {
         if(isset($pathArr[1])){
             if($pathArr[1] == "schedule"){
                 if(isset($pathArr[2])){
-                  if(isset($pathArr[3])){
-
+                  if($pathArr[2] == "times"){
+                    $this->page = $this->json_schedule(0,$pathArr[2]);
                   }
                   else{
                     $this->page = $this->json_schedule($pathArr[2]);
@@ -36,15 +36,42 @@ class JSONpage {
             elseif($pathArr[1] == "content"){
               //content
               if(isset($pathArr[2])){
-                  $this->page = $this->json_content($pathArr[2]);
+                  if($pathArr[2] == "session"){
+                    if(isset($pathArr[3]) && is_numeric($pathArr[3])){
+                      $this->page = $this->json_content(0,$pathArr[3]);
+                    }
+                    else{
+                      $this->page = $this->json_error();
+                    }
+                  }
+                  elseif(is_numeric($pathArr[2])){
+                    $this->page = $this->json_content($pathArr[2]);
+                  }
+                  else{
+                    $this->page = $this->json_error();
+                  }          
               }
               else{
                 $this->page = $this->json_content();
               }
             }
-            elseif($pathArr[1]== "authors"){
+            elseif($pathArr[1] == "authors"){
                 if(isset($pathArr[2])){
-                    $this->page = $this->json_authors($pathArr[2]);
+                  if($pathArr[2] == "content"){
+                    if(isset($pathArr[3]) && is_numeric($pathArr[3])){
+                      $this->page = $this->json_authors(0,$pathArr[3]);
+                    }
+                    else{
+                      $this->page = $this->json_error();
+                    }               
+                  }
+                  elseif(is_numeric($pathArr[2])){
+                    $this->page = $this->json_content($pathArr[2]);
+                  }
+                  else{
+                    $this->page = $this->json_error();
+                  }   
+                    
                 }
                 else{
                   $this->page = $this->json_authors();
@@ -86,12 +113,15 @@ class JSONpage {
                    "author"=>"Alex Tuersley",
                     "api"=> array("/api" => "returns api endpoints and basic info",
                                   "/api/schedule" => "returns the days of the schedule",
-                                  "/api/schedule/id" => array("returns"=> "time slots within the day", "id" => "An integer slot id that links to the times in a day"),
-                                  "/api/schedule/presentations" => "lists all presentations",
-                                  "/api/schedule/presentations/id" => array("returns" => "All presentations that have a specific slot id", "id"),
+                                  "/api/schedule/times?day=:int" => "returns the time slots of the schedule",
+                                  "/api/schedule/slotid" => array("returns" => "All sessions within a time slot along with some information about them", "slotid"=>"id of a time slot"),
                                   "/api/authors" => "lists all authors",
                                   "/api/authors?search=name" => "searches for users with a name",
                                   "/api/authors/id" => array("returns"=>"an author with all the presentations they are in and other info","id"=>"id of an author in the database"),
+                                  "/api/content" => "returns all the content",
+                                  "/api/content/contentid" => array("returns"=>"Detailed information about the content such as title, authors, time and room","contentd"=>"id of the content"),
+                                  "/api/content?search=name" => "searches for content abstract or title with the name",
+                                  "/api/content/session/sessionId" => array("returns" => "All content associated with a session along with some information", "sessionId" => "id of a session"),
                                   "/api/login" => array("returns" => "a JSON Web Token if the login is successful", "requires" => "email and password from a form"),
                                   "/api/update" => array("returns" => "updates the title of a session id the JSON Web Token used is correct", "requires" => "JSON Web Token and the updated title of the session")
                                   ));
@@ -109,31 +139,40 @@ class JSONpage {
    * @param $day is an integer of the day selected, if no day is selected runs a query for all days
    * @return string json query results
    */
-  private function json_schedule($slot = 0){
+  private function json_schedule($slot = 0, $times = null){
     if($slot > 0){
-      $query = "SELECT dayString, startHour, startMinute, endHour, endMinute, sessions.sessionId, sessions.name, session_types.name as sessionstype, rooms.name As room, (SELECT authors.name FROM authors JOIN sessions ON authors.authorId = sessions.chairId WHERE sessions.slotId = :slot) as sessionchair FROM slots
-      JOIN sessions ON slots.slotId = sessions.slotId
+      $query = "SELECT sessions.sessionId, sessions.name as sessionname, rooms.name as room, session_types.name as type,(SELECT authors.name FROM authors WHERE authors.authorId = sessions.chairId)AS chair FROM sessions
+      JOIN rooms ON rooms.roomId = sessions.roomId
       JOIN session_types ON sessions.typeId = session_types.typeId
-      JOIN rooms ON sessions.roomId = rooms.roomId
       WHERE sessions.slotId = :slot";
       $slot = $this->sanitiseNum($slot);
       $params = ["slot" => $slot];
     }
+    elseif($times){
+      if(isset($_REQUEST['day'])) {
+        $query = "SELECT slotId,startHour,startMinute,endHour,endMinute,type FROM slots WHERE dayInt = :dayint
+        ORDER BY dayInt";
+        $day = $this->sanitiseNum($_REQUEST["day"]);
+        $params = ["dayint" => $day];
+      }  
+    }
     else{
-      $query = "SELECT slotId,dayInt,dayString,startHour,startMinute,endHour,endMinute,type  FROM slots
-                ORDER BY dayInt
-                LIMIT 4";
+      $query = "SELECT DISTINCT dayInt,dayString FROM slots
+      ORDER BY dayInt";
       $params = [];
     }
     return ($this->recordset->getJSONRecordSet($query, $params));
   }
+  /**
+   * function to get information about sessions including content and
+   */
   /**
    * function for author queries
    * @param $id is the id of an author that has been selected 
    * if a search has been run the searched name is grabbed from the url and runs a different query
    * @return JSON data based on query results 
    */ 
-  private function json_authors($id = 0){
+  private function json_authors($id = 0,$contentId = 0){
       if($id > 0){ 
           $query = "SELECT DISTINCT authors.name, authorInst,title, abstract, award, sessions.name, session_types.name FROM authors
           INNER JOIN content_authors On authors.authorId = content_authors.authorId
@@ -145,9 +184,17 @@ class JSONpage {
           $authorId = $this->sanitiseNum($id);
           $params = ["authorid" => $authorId];
       }
+      elseif($contentId){
+        $query = "SELECT authors.name as authorName,authorInst FROM authors 
+        JOIN content_authors ON authors.authorId = content_authors.authorId
+        WHERE content_authors.contentId = :contentId";
+        $contentId = $this->sanitiseNum($contentId);
+        $params = ["contentId" => $contentId];
+
+      }
       else{
         
-          $query = "SELECT DISTINCT authors.authorId, authors.name, authorInst FROM authors
+          $query = "SELECT DISTINCT authors.authorId, authors.name as authorName, authorInst FROM authors
           INNER JOIN content_authors ON authors.authorId = content_authors.authorId
           ";
           $params = [];
@@ -165,7 +212,7 @@ class JSONpage {
    * @param $id - the id of some content which is used to gather further information about it
    * @return JSON data based on the query that is ran
    */
-  private function json_content($id = 0){
+  private function json_content($id = 0,$sessionId = 0){
       if($id > 0){
         $query = "SELECT content.title, content.abstract, content.award, sessions.slotId, session_types.name, sessions.name, slots.startHour, slots.startMinute, slots.endHour, slots.endMinute, slots.dayString, authors.name as author, content_authors.authorInst FROM content
         JOIN content_authors ON content_authors.contentId = content.contentId
@@ -179,6 +226,13 @@ class JSONpage {
         $id = $this->sanitiseNum($id);
         $params = ["id" => $id];
       }
+      elseif($sessionId){
+          $query = "SELECT content.contentId, title,abstract,award FROM content 
+          JOIN sessions_content ON content.contentId = sessions_content.contentId
+          WHERE sessions_content.sessionId = :sessionId";
+          $sessionId = $this->sanitiseNum($sessionId);
+          $params = ["sessionId" => $sessionId];
+      }
       else{      
         $query = "SELECT * FROM content";
         $params = [];
@@ -191,10 +245,7 @@ class JSONpage {
       }
       return ($this->recordset->getJSONRecordSet($query, $params));
   }
-  /**
-   * function gets JSON Web Token and checks whether it is valid
-   * if the token is valid then function updates 
-   */
+
   private function json_update(){
     $msg = "Invalid token. You do not have permission to update";
     $status = 400;
