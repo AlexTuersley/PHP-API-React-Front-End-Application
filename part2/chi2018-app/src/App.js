@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Switch, Route, NavLink } from "react-router-dom";
 import Home from './components/Home';
 import Schedules from './components/Schedules';
+import Authors from './components/Authors';
 
 import './App.css';
 
@@ -18,6 +19,9 @@ function App() {
               <NavLink activeClassName="selected" to="/schedules">Schedule</NavLink>
             </li>
             <li>
+              <NavLink activeClassName="selected" to="/authors">Authors</NavLink>
+            </li>
+            <li>
               <NavLink activeClassName="selected" to="/admin">Admin</NavLink>
             </li>
           </ul>
@@ -25,6 +29,9 @@ function App() {
         <Switch>
           <Route path="/schedules">
             <Schedules />
+          </Route>
+          <Route path="/authors">
+            <Authors />
           </Route>
           <Route path="/admin">
             Admin

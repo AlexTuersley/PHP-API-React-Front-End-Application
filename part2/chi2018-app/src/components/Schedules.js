@@ -21,15 +21,12 @@ class Schedules extends React.Component{
           }
         );
     }
-    render() {
-        let filteredData = this.state.data;
- 
-          
+    render() {          
         return (
           <div>
             <h1>Schedule</h1>
             { 
-              filteredData.map( (details, i) => (<Schedule key={i} details={details} />) )
+              this.state.data.map( (details, i) => (<Schedule key={i} details={details} />) )
             }
           </div>
         );

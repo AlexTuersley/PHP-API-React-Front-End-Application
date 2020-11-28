@@ -66,7 +66,7 @@ class JSONpage {
                     }               
                   }
                   elseif(is_numeric($pathArr[2])){
-                    $this->page = $this->json_content($pathArr[2]);
+                    $this->page = $this->json_authors($pathArr[2]);
                   }
                   else{
                     $this->page = $this->json_error();
@@ -174,13 +174,20 @@ class JSONpage {
    */ 
   private function json_authors($id = 0,$contentId = 0){
       if($id > 0){ 
-          $query = "SELECT DISTINCT authors.name, authorInst,title, abstract, award, sessions.name, session_types.name FROM authors
-          INNER JOIN content_authors On authors.authorId = content_authors.authorId
-          INNER JOIN content ON content_authors.contentId = content.contentId
-          INNER JOIN sessions_content ON content.contentId = sessions_content.contentId
-          INNER JOIN sessions ON  sessions_content.sessionId = sessions.sessionId 
-          INNER JOIN session_types ON sessions.typeId = session_types.typeId
-          WHERE authors.authorId = :authorid";
+          $query = "SELECT DISTINCT content_authors.contentId, content.title, content.abstract, sessions.name as sessionname, 
+          (SELECT name FROM rooms WHERE rooms.roomId = sessions.roomId) as room,
+          (SELECT name FROM session_types WHERE session_types.typeId = sessions.typeId) as sessiontype,
+          slots.dayString,
+          slots.startHour,
+          slots.startMinute,
+          slots.endHour,
+          slots.endMinute
+          FROM content_authors
+          JOIN content ON content.contentId = content_authors.contentId
+          JOIN sessions_content ON content.contentId = sessions_content.contentId
+          JOIN sessions ON sessions_content.sessionId = sessions.sessionId
+          JOIN slots ON sessions.slotId = slots.slotId
+          WHERE content_authors.authorId = :authorid";
           $authorId = $this->sanitiseNum($id);
           $params = ["authorid" => $authorId];
       }

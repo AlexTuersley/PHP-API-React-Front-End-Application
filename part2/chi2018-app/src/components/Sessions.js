@@ -26,7 +26,7 @@ class Sessions extends React.Component{
       }  
       render() {  
         let sessioninfo = ''
-        if (this.state.display) {
+        if (this.state.display && this.state.data.length > 0) {
           sessioninfo = this.state.data.map( (details, i) => (
             <div key={i} value={details.sessionId}>
               <p>Session: {details.sessionname} Room: {details.room} Type: {details.type} Chair: {details.chair}</p>
@@ -34,13 +34,13 @@ class Sessions extends React.Component{
             </div>
           ))
         }
-      
-        return (
-          <div>
-            <h4 onClick={this.handleSessionClick}>Sessions</h4>
-            {sessioninfo}
-          </div>
-        );
+          return (
+          
+            <div>
+              <h4 onClick={this.handleSessionClick}>Sessions</h4>
+              {sessioninfo}
+            </div>
+          );      
       }
 
 }

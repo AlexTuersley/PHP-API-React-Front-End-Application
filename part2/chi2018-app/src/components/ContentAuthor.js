@@ -18,9 +18,9 @@ class ContentAuthor extends React.Component{
     }
     render(){
         let authorList = "";
-        {this.state.data.map((details, i) => (
+        this.state.data.map((details, i) => (
              authorList += details.authorName +" "
-        ))}
+        ))
         return(
             <p>Authors: {authorList}</p>
         );
