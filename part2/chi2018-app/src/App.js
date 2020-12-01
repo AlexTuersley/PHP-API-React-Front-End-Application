@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Switch, Route, NavLink } from "react-router-do
 import Home from './components/Home';
 import Schedules from './components/Schedules';
 import Authors from './components/Authors';
+import NotFound404 from './components/NotFound404';
+import Admin from './components/Admin'
 
 import './App.css';
 
@@ -34,13 +36,13 @@ function App() {
             <Authors />
           </Route>
           <Route path="/admin">
-            Admin
+            <Admin />
           </Route>
           <Route path="/">
             <Home/>
           </Route>
           <Route path="*">
-            404 Not Found
+            <NotFound404 />
           </Route>
         </Switch>
       </div>

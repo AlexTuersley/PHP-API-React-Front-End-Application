@@ -12,7 +12,7 @@ class Authors extends React.Component{
           data:[]
         }
         this.handleSearch = this.handleSearch.bind(this);
-      }
+    }
     componentDidMount() {
         const url = "http://localhost/WebAssignment/part1/api/authors"
             fetch(url)
@@ -26,24 +26,20 @@ class Authors extends React.Component{
             );
         }
 
-        handleMoreClick = () => {
-            this.setState({page:this.state.page+1})
-        }
-        
         handlePreviousClick = () => {
-        this.setState({page:this.state.page-1})
+          this.setState({page:this.state.page-1})
         }
         
         handleNextClick = () => {
-        this.setState({page:this.state.page+1})
+          this.setState({page:this.state.page+1})
         }
         
         handleSearch = (e) => {
-        this.setState({page:1,query:e.target.value})
+          this.setState({page:1,query:e.target.value})
         }
         
         searchString = (s) => {
-        return s.toLowerCase().includes(this.state.query.toLowerCase())
+          return s.toLowerCase().includes(this.state.query.toLowerCase())
         }
         
         searchDetails = (details) => {

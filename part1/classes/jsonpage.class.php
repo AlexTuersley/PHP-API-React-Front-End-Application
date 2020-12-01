@@ -16,7 +16,6 @@ class JSONpage {
   */
   public function __construct($pathArr, $recordset) {
     $this->recordset = $recordset;
-    
     if($pathArr[0] == "api"){
         if(isset($pathArr[1])){
             if($pathArr[1] == "schedule"){
@@ -26,8 +25,7 @@ class JSONpage {
                   }
                   else{
                     $this->page = $this->json_schedule($pathArr[2]);
-                  }
-                  
+                  }      
                 }
                 else{
                   $this->page = $this->json_schedule();
@@ -54,6 +52,9 @@ class JSONpage {
               else{
                 $this->page = $this->json_content();
               }
+            }
+            elseif($pathArr[1] == "sessions"){
+              $this->page = $this->json_sessions();
             }
             elseif($pathArr[1] == "authors"){
                 if(isset($pathArr[2])){
@@ -115,6 +116,7 @@ class JSONpage {
                                   "/api/schedule" => "returns the days of the schedule",
                                   "/api/schedule/times?day=:int" => "returns the time slots of the schedule",
                                   "/api/schedule/slotid" => array("returns" => "All sessions within a time slot along with some information about them", "slotid"=>"id of a time slot"),
+                                  "/api/sessions" => "returns all sessions in the database along with their name and some other information",
                                   "/api/authors" => "lists all authors",
                                   "/api/authors?search=name" => "searches for users with a name",
                                   "/api/authors/id" => array("returns"=>"an author with all the presentations they are in and other info","id"=>"id of an author in the database"),
@@ -134,10 +136,11 @@ class JSONpage {
     $msg = array("status"=>404,"message"=>"error page not found");
     return json_encode($msg);
   }
+ 
   /**
    * function for the schedule
    * @param $day is an integer of the day selected, if no day is selected runs a query for all days
-   * @return string json query results
+   * @return JSON data based on query results
    */
   private function json_schedule($slot = 0, $times = null){
     if($slot > 0){
@@ -149,7 +152,7 @@ class JSONpage {
       $params = ["slot" => $slot];
     }
     elseif($times){
-      if(isset($_REQUEST['day'])) {
+      if(isset($_REQUEST['day']) && is_numeric($_REQUEST['day'])) {
         $query = "SELECT slotId,startHour,startMinute,endHour,endMinute,type FROM slots WHERE dayInt = :dayint
         ORDER BY dayInt";
         $day = $this->sanitiseNum($_REQUEST["day"]);
@@ -163,9 +166,23 @@ class JSONpage {
     }
     return ($this->recordset->getJSONRecordSet($query, $params));
   }
-  /**
-   * function to get information about sessions including content and
+   /**
+   * function for sessions
+   * @return JSON data based on the query results
    */
+  private function json_sessions(){
+    $query = "SELECT sessionId, sessions.name as sessionname, 
+              (SELECT rooms.name FROM rooms WHERE rooms.roomId = sessions.roomId) as room,
+              (SELECT session_types.name FROM session_types WHERE session_types.typeId = sessions.typeId) as type,
+              (SELECT authors.name FROM authors WHERE authors.authorId = sessions.chairId) as chair,
+              slots.dayString,
+              slots.startHour, slots.startMinute, slots.endHour, slots.endMinute
+              from sessions
+              JOIN slots ON sessions.slotId = slots.slotId
+              ORDER BY sessions.sessionId";
+    $params = [];
+    return ($this->recordset->getJSONRecordSet($query, $params));
+  }
   /**
    * function for author queries
    * @param $id is the id of an author that has been selected 
@@ -191,7 +208,7 @@ class JSONpage {
           $authorId = $this->sanitiseNum($id);
           $params = ["authorid" => $authorId];
       }
-      elseif($contentId){
+      elseif($contentId && is_numeric($contentId)){
         $query = "SELECT authors.name as authorName,authorInst FROM authors 
         JOIN content_authors ON authors.authorId = content_authors.authorId
         WHERE content_authors.contentId = :contentId";
@@ -217,7 +234,7 @@ class JSONpage {
   /**
    * function for content
    * @param $id - the id of some content which is used to gather further information about it
-   * @return JSON data based on the query that is ran
+   * @return JSON data based on query results
    */
   private function json_content($id = 0,$sessionId = 0){
       if($id > 0){
@@ -252,46 +269,67 @@ class JSONpage {
       }
       return ($this->recordset->getJSONRecordSet($query, $params));
   }
-
-  private function json_update(){
-    $msg = "Invalid token. You do not have permission to update";
-    $status = 400;
+  /**
+   * function gets php input decodes the token passed through and updates a title if the token is authorised
+   * @return JSON message with query status
+   */
+  private function json_update() {
     $input = json_decode(file_get_contents("php://input"));
-    $token = $input->token;
-    $admin = $input->admin;
-
-
+  
+    if (is_null($input->token)) {
+      return json_encode(array("status" => 401, "message" => "Not authorised"));
+    }
+    if (is_null($input->sessionname) || is_null($input->sessionId)) {  
+      return json_encode(array("status" => 400, "message" => "Invalid request"));
+    }
+  
+    try {
+      //get the admin status of the decoded token and if its true update session name if not return 401
+      $tokenDecoded = \Firebase\JWT\JWT::decode($input->token, JWTKEY, array('HS256'));
+    }
+    catch (UnexpectedValueException $e) {        
+      return json_encode(array("status" => 401, "message" => $e->getMessage()));
+    }
+  
+    $query  = "UPDATE sessions SET name = :sessionname WHERE sessionId = :sessionId";
+    $params = ["sessionname" => $input->sessionname, "sessionId" => $input->sessionId];
+    $res = $this->recordset->getJSONRecordSet($query, $params);    
+    return json_encode(array("status" => 200, "message" => "ok", "token" => $tokenDecoded));
   }
   /**
    * function gets php input and checks the database to see if the user exists
-   * @return JSON Web token if the user credentials are correct
-   */
-  private function json_login(){
+   * @return JSON Web token if the user credentials are correct, status of query and welcome message if successful
+  */
+  private function json_login() {
     $msg = "Invalid request. Username and password required";
-    $status = "400";
-    $encodedToken = null;
-    $admin = null;
+    $status = 400;
+    $token = null;
     $input = json_decode(file_get_contents("php://input"));
 
+
     if (!is_null($input->email) && !is_null($input->password)) {  
-      $query  = "SELECT firstname, lastname, password, admin FROM users WHERE email LIKE :email";
+      $query  = "SELECT email, username, admin, password FROM users WHERE email LIKE :email";
       $params = ["email" => $input->email];
       $res = json_decode($this->recordset->getJSONRecordSet($query, $params),true);
 
-      if(password_verify($input->password, $res['data'][0]['password'])) {
-        $msg = "User authorised. Welcome ". $res['data'][0]['firstname'] . " " . $res['data'][0]['lastname'];
-        $status = "200";
-        $token["email"] = $input->email;
-        $token["exp"] = "hello";
-        $encodedToken = JWT::encode($token,SECRET_KEY);
-        $admin = $res['data'][0]['admin'];
+      if (password_verify($input->password, $res['data'][0]['password'])) {
+        $msg = "User authorised. Welcome ". $res['data'][0]['username'];
+        $status = 200;
+        $token = array();
+        $token['email'] = $input->email;
+        $token['name'] = $res['data'][0]['username'];
+        $token['admin'] = $res['data'][0]['admin'];
+        $token['iat'] = time();
+        $token['exp']= time() + 60*60;
+        $jwt = \Firebase\JWT\JWT::encode($token,JWTKEY);
       } else { 
         $msg = "username or password are invalid";
-        $status = "401";
+        $status = 401;
       }
     }
-    return json_encode(array("status" => $status, "message" => $msg, "token" => $encodedToken, "admin" => $admin));
-}
+
+    return json_encode(array("status" => $status, "message" => $msg, "token" => $jwt));
+  }
 
   /**
    * getter function for the page

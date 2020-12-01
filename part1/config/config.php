@@ -12,7 +12,7 @@ function exceptionHandler($e) {
   header("Access-Control-Allow-Origin: *"); 
   header("Content-Type: application/json; charset=UTF-8"); 
   header("Access-Control-Allow-Methods: GET, POST");
-  echo json_encode($usr_msg);
+  echo json_encode($msg);
   logError($msg);
 }
 
@@ -39,8 +39,8 @@ $ini['main'] = parse_ini_file("config.ini",true);
 define('BASEPATH', $ini['main']['paths']['basepath']);
 //define the path to the css file
 define('CSSPATH', $ini['main']['paths']['css']);
-//defines the secret key used in the JSON Web Token encoding
-define('SECRET_KEY',$ini['main']['database']['secretkey']);
+//defines the key used in the JSON Web Token encoding
+define('JWTKEY', $ini['main']['keys']['jwt']);
 
 foreach (array_keys($ini['routes']) as $menuitem) {
   $menuitem == "error" ?: $menu[$menuitem] = $menuitem . "/";

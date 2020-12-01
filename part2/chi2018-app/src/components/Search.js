@@ -9,13 +9,8 @@ class Search extends React.Component {
  render() {
    return (
      <div>
-       <label><p>Search: {this.props.query}</p>
-       <input
-         type='text' 
-         placeholder='search'
-         value={this.props.query}
-         onChange={this.props.handleSearch}
-       />
+       <label>Search:
+          <input type='text' placeholder='search' value={this.props.query} onChange={this.props.handleSearch} />
        </label>
      </div>
    )

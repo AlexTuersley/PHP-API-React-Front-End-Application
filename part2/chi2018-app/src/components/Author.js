@@ -38,7 +38,7 @@ class Author extends React.Component{
         }
         return(
             <div>
-                <p onClick={this.handleAuthorClick}>Author: {this.props.details.authorName} Institution: {this.props.details.authorInst}</p>
+                <h3 onClick={this.handleAuthorClick}>Author: {this.props.details.authorName} Institution: {this.props.details.authorInst}</h3>
                 {authorInfo}
             </div>
         );
