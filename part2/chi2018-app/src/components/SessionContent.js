@@ -9,7 +9,9 @@ import { FaAward,FaNewspaper } from "react-icons/fa";
 class SessionContent extends React.Component {
     state = {
        display:false,
-       data:[]
+       data:[],
+       page:1,
+       pageSize:2
     }
 
     loadSessionContentDetails = () => {
@@ -28,30 +30,49 @@ class SessionContent extends React.Component {
         this.setState({display:!this.state.display})
         this.loadSessionContentDetails()
     }
+
+    handlePreviousClick = () => {
+      this.setState({page:this.state.page-1})
+    }
+   
+    handleNextClick = () => {
+      this.setState({page:this.state.page+1})
+    }
      
-      render() {
-        let sessioncontent = "";
-        if (this.state.display) {
-          if(this.state.data.length > 0){
-            sessioncontent = this.state.data.map((details, i) => (
-              <div key={i}>
-                  <div className="AuthorInfo flex-item"  value={details.contentId}>
-                    <p><span>Title: </span>{details.title} {details.award ==="HONORABLE_MENTION" ? <span title="Honourable Mention"><FaNewspaper/></span> : ""}
-                    {details.award ==="BEST_PAPER" ? <span title="Best Paper"><FaAward/></span> : ""}</p> 
-                    {details.abstract !== "" ? <p><span>Abstract:</span> {details.abstract}</p> : ""}
-                    <ContentAuthor contentId={details.contentId}></ContentAuthor>
-                  </div>
-              </div>
-            ));
-          }
+    render() {
+      let sessioncontent = "";
+      let buttons = "";
+      if (this.state.display) {
+        if(this.state.data.length > 0){
+          let noOfPages = Math.ceil(this.state.data.length/this.state.pageSize);
+          if (noOfPages === 0) {noOfPages=1}
+          let disabledPrevious = (this.state.page <= 1);
+          let disabledNext = (this.state.page >= noOfPages);
+          sessioncontent = this.state.data
+          .slice(((this.state.pageSize*this.state.page)-this.state.pageSize),(this.state.pageSize*this.state.page))
+          .map((details, i) => (
+            <div key={i}>
+                <div className="AuthorInfo flex-item"  value={details.contentId}>
+                  <p><span>Title: </span>{details.title} {details.award ==="HONORABLE_MENTION" ? <span title="Honourable Mention"><FaNewspaper/></span> : ""}
+                  {details.award ==="BEST_PAPER" ? <span title="Best Paper"><FaAward/></span> : ""}</p> 
+                  {details.abstract !== "" ? <p><span>Abstract:</span> {details.abstract}</p> : ""}
+                  <ContentAuthor contentId={details.contentId}></ContentAuthor>
+                </div>
+            </div>
+          ));
+          buttons =  <div><button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
+          Page {this.state.page} of {noOfPages}
+          <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button></div>;
         }
-       
-        return (
-            <div>
-              <h5 onClick={this.handleContentClick}><span>Session: {this.props.details.sessionname}</span> <span>Room: {this.props.details.room}</span> <span>Type: {this.props.details.type} </span> {this.props.details.chair !== null?<span>Chair: {this.props.details.chair}</span>:""}</h5>
-              {sessioncontent}
-            </div>         
-        );
-      }  
+      }
+      
+      return (
+          <div>
+            <h5 onClick={this.handleContentClick}><span>Session: {this.props.details.sessionname}</span> <span>Room: {this.props.details.room}</span> <span>Type: {this.props.details.type} </span> {this.props.details.chair !== null?<span>Chair: {this.props.details.chair}</span>:""}</h5>
+            {sessioncontent}
+            {buttons}
+          </div>         
+      );
+    }  
 }
 export default SessionContent;

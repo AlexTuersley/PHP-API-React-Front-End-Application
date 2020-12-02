@@ -6,7 +6,10 @@ import Sessions from './Sessions';
  * @author Alex Tuersley
  */
 class Schedule extends React.Component{
-    state = {display:false, data:[]}
+    state = {
+      display:false,
+      data:[]
+    }
 
     loadScheduleDetails = () => {
         const url = "http://localhost/WebAssignment/part1/api/schedule/times?day=" + this.props.details.dayInt
@@ -23,24 +26,26 @@ class Schedule extends React.Component{
     handleScheduleClick = (e) => {
         this.setState({display:!this.state.display})
         this.loadScheduleDetails()
-      }
-     
-      render() {
-        let schedule = ""
-        if (this.state.display) {
-          schedule = this.state.data.map( (details, i) => (
-            <div key={i} value={details.slotId}>
-               <Sessions key={i} details={details}></Sessions>
-            </div>
-          ))
-        }
-     
-        return (
-          <div>
-            <h2 className='day' onClick={this.handleScheduleClick}>{this.props.details.dayString}</h2>
-            {schedule}
+    }
+
+    render() {
+      let schedule = "";
+      
+      if (this.state.display) {
+        schedule = this.state.data
+        .map( (details, i) => (
+          <div key={i} value={details.slotId}>
+              <Sessions key={i} details={details}></Sessions>
           </div>
-        );
-      }  
+        ))
+      }
+    
+      return (
+        <div>
+          <h2 className='day' onClick={this.handleScheduleClick}>{this.props.details.dayString}</h2>
+          {schedule}
+        </div>
+      );
+    }  
 }
 export default Schedule;

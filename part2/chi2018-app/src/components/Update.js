@@ -12,7 +12,7 @@ class Update extends React.Component {
         super(props);
         this.state = {
           page:1,
-          pageSize:10,
+          pageSize:8,
           query: "",
           data:[]
         }

@@ -25,6 +25,7 @@ class Schedules extends React.Component{
           }
         );
     }
+
     render() {          
         return (
           <div>
