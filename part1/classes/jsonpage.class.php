@@ -312,11 +312,12 @@ class JSONpage {
   private function json_login() {
     $msg = "Invalid request. Username and password required";
     $status = 400;
-    $token = null;
+    $jwt= null;
     $input = json_decode(file_get_contents("php://input"));
+    
 
 
-    if (!is_null($input->email) && !is_null($input->password)) {  
+    if (!is_null($input->email) && $input->password != "") {  
       $query  = "SELECT email, username, admin, password FROM users WHERE email LIKE :email";
       $params = ["email" => $input->email];
       $res = json_decode($this->recordset->getJSONRecordSet($query, $params),true);
