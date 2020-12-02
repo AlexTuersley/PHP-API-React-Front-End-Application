@@ -1,7 +1,11 @@
 import React from 'react';
 import ContentAuthor from './ContentAuthor';
 import { FaAward,FaNewspaper } from "react-icons/fa";
-
+/**
+ * Gets all content within a session and displays the information about each individual content
+ * 
+ * @author Alex Tuersley
+ */
 class SessionContent extends React.Component {
     state = {
        display:false,
@@ -33,7 +37,7 @@ class SessionContent extends React.Component {
               <div className="AuthorInfo" key={i} value={details.contentId}>
                 <p><span>Title: </span>{details.title} {details.award ==="HONORABLE_MENTION" ? <span title="Honourable Mention"><FaNewspaper/></span> : <span></span>}
                 {details.award ==="BEST_PAPER" ? <span title="Best Paper"><FaAward/></span> : <span></span>}</p> 
-                <p><span>Abstract:</span> {details.abstract}</p>
+                {details.abstract !== "" ? <p><span>Abstract:</span> {details.abstract}</p> : <span></span>}
                 <ContentAuthor contentId={details.contentId}></ContentAuthor>
               </div>
             ));

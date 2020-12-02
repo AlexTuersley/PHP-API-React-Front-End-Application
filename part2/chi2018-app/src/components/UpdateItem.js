@@ -1,5 +1,9 @@
 import React from 'react';
-
+/**
+ * Shows detailed information about a session along with an input for users to edit the session name
+ * 
+ * @author Alex Tuersley
+ */
 class UpdateItem extends React.Component {
 
   state = {sessionname: this.props.details.sessionname, display:false}

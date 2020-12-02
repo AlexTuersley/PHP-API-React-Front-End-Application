@@ -1,7 +1,11 @@
 import React from 'react'
 import Login from './Login'
 import Update from './Update'
-
+/**
+ * Uses mutiple components to create a login page and if login is successful an update page, making api calls for both functions
+ * 
+ * @author Alex Tuersley
+ */
 class Admin extends React.Component {
 
   constructor(props) {

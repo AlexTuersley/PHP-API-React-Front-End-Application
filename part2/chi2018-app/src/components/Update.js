@@ -2,7 +2,11 @@ import React from 'react';
 import UpdateItem from './UpdateItem'
 import Search from './Search'
 
-
+/**
+ * Lists all sessions which are searchable
+ * 
+ * @author Alex Tuersley
+ */
 class Update extends React.Component {
     constructor(props) {
         super(props);

@@ -1,6 +1,10 @@
 import React from 'react';
 import Schedule from './Schedule.js';
-
+/**
+ * Gets list of days within a schedule and passes them to Schedule Component
+ * 
+ * @author Alex Tuersley
+ */
 class Schedules extends React.Component{
 
   constructor(props) {

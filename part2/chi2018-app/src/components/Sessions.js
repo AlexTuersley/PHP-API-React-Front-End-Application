@@ -1,6 +1,10 @@
 import React from 'react';
 import SessionContent from './SessionContent';
-
+/**
+ * Gets sessions within a time slot and passes the information to SessionContent component
+ * 
+ * @author Alex Tuersley
+ */
 class Sessions extends React.Component{
         state = {
           display : false,
@@ -34,9 +38,9 @@ class Sessions extends React.Component{
           ))
         }
           return (
-          
+
             <div>
-              <h4 onClick={this.handleSessionClick}>Sessions</h4>
+              <h4 onClick={this.handleSessionClick}>Time: {this.props.details.startHour}:{this.props.details.startMinute}{this.props.details.startMinute === "0" ? "0":""}-{this.props.details.endHour}:{this.props.details.endMinute}{this.props.details.endMinute === "0" ? "0":""} Type: {this.props.details.type}</h4>
               {sessioninfo}
             </div>
           );      

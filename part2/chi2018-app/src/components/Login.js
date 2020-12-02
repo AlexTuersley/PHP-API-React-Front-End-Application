@@ -1,5 +1,9 @@
 import React from 'react';
-
+/**
+ * Creates login form for users to enter their details
+ * 
+ * @author Alex Tuersley
+ */
 class Login extends React.Component {
 
 render() {

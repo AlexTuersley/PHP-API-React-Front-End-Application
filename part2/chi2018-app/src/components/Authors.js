@@ -1,7 +1,11 @@
 import React from 'react';
 import Search from './Search';
 import Author from './Author';
-
+/**
+ * Gets a full list of authors, which are searchable
+ * 
+ * @author Alex Tuersley
+ */
 class Authors extends React.Component{
     constructor(props) {
         super(props);

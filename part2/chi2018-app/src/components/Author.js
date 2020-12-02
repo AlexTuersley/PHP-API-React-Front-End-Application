@@ -1,6 +1,10 @@
 import React from 'react';
 import { FaAward,FaNewspaper } from "react-icons/fa";
-
+/**
+ * Gets all content associated with an author and displays detailed information about the content
+ * 
+ * @author Alex Tuersley
+ */
 class Author extends React.Component{
     
     state = {

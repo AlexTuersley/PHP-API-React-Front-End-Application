@@ -1,6 +1,10 @@
 import React from 'react';
 import Sessions from './Sessions';
-
+/**
+ * Displats Schedule days and gets time slots on a selected day, passing the data to Sessions component
+ * 
+ * @author Alex Tuersley
+ */
 class Schedule extends React.Component{
     state = {display:false, data:[]}
 
@@ -26,8 +30,7 @@ class Schedule extends React.Component{
         if (this.state.display) {
           schedule = this.state.data.map( (details, i) => (
             <div key={i} value={details.slotId}>
-              <p className='times'>Time: {details.startHour}:{details.startMinute}{details.startMinute === "0" ? "0":""}-{details.endHour}:{details.endMinute}{details.endMinute === "0" ? "0":""} Type: {details.type}</p>
-              <Sessions key={i} details={details}></Sessions>
+               <Sessions key={i} details={details}></Sessions>
             </div>
           ))
         }

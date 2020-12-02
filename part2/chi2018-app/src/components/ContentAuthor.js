@@ -1,5 +1,9 @@
 import React from 'react'
-
+/**
+ * Gets a list of authors based on a content id
+ * 
+ * @author Alex Tuersley
+ */
 class ContentAuthor extends React.Component{
     state = {
         data:[]
@@ -18,11 +22,17 @@ class ContentAuthor extends React.Component{
     }
     render(){
         let authorList = "";
+        let list = "";
         this.state.data.map((details, i) => (
-             authorList += details.authorName +" "
+            i !== 0 ? authorList += ", "+details.authorName : authorList += details.authorName
         ))
+        if(authorList !== ""){
+            list = <p><span>Authors:</span> {authorList}</p>;
+        }
         return(
-            <p><span>Authors:</span> {authorList}</p>
+            <div>
+                {list}
+            </div>
         );
     }
 
