@@ -61,11 +61,11 @@ class Authors extends React.Component{
               { 
                 filteredData
                 .slice(((this.state.pageSize*this.state.page)-this.state.pageSize),(this.state.pageSize*this.state.page))
-                .map( (details, i) => (<Author  details={details}></Author>) )
+                .map( (details, i) => (<Author key={i} details={details}></Author>) )
               }
-              <button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
+            <button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
               Page {this.state.page} of {noOfPages}
-              <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button>
+            <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button>      
             </div>
           );
         }      
