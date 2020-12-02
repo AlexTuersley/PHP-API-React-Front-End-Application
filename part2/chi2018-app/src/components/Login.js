@@ -8,7 +8,7 @@ class Login extends React.Component {
 
 render() {
   return (
-    <div>
+    <div style={{marginTop:"10px"}}>
        <input
          type='text' 
          placeholder='email'

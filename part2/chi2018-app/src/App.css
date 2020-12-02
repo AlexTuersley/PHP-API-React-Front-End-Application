@@ -9,7 +9,6 @@
 
 .AuthorInfo{
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgb(89 90 91 / 74%);
   background-color: #080808;
   color: rgb(255, 255, 255);
   margin-bottom: 20px;
@@ -74,9 +73,12 @@ label{
   
 button{
     display: inline-block;
+    box-shadow: 0 2px 8px rgb(89 90 91 / 74%);
+    background-color: #080808;
     background-color: #080808;
     border-radius: 10px;
-    border: 4px double #cccccc;
+    border: 4px solid #cccccc;
+    font-weight: bold;
     color: #eeeeee;
     text-align: center;
     font-size: 14px;

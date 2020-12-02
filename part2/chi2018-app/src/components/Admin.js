@@ -88,7 +88,7 @@ render() {
   let page = <Login handleLoginClick={this.handleLoginClick} email={this.state.email} password={this.props.password} handleEmail={this.handleEmail} handlePassword={this.handlePassword}/>
   if (this.state.authenticated) {
     page = <div>
-            <div><button onClick={this.handleLogoutClick}>Log out</button></div>
+            <div style={{marginTop:"10px"}}><button onClick={this.handleLogoutClick}>Log out</button></div>
             
             <Update handleUpdateClick={this.handleUpdateClick} />             
            </div>

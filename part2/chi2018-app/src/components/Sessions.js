@@ -53,15 +53,18 @@ class Sessions extends React.Component{
               <SessionContent key={i} details={details}></SessionContent>
             </div>
           ));
-          buttons = <div>
+          if(this.state.length > this.state.pageSize){
+            buttons = <div>
             <button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
                 Page {this.state.page} of {noOfPages}
             <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button>
             </div>
+          }
+        
         }
           return (
 
-            <div>
+            <div key={this.props.details.slotId}>
               <h4 onClick={this.handleSessionClick}>Time: {this.props.details.startHour}:{this.props.details.startMinute}{this.props.details.startMinute === "0" ? "0":""}-{this.props.details.endHour}:{this.props.details.endMinute}{this.props.details.endMinute === "0" ? "0":""} Type: {this.props.details.type}</h4>
               {sessioninfo}
               {buttons}

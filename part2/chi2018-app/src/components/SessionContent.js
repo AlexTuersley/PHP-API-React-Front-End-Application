@@ -60,9 +60,12 @@ class SessionContent extends React.Component {
                 </div>
             </div>
           ));
-          buttons =  <div><button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
-          Page {this.state.page} of {noOfPages}
-          <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button></div>;
+          if(this.state.data.length > this.state.pageSize){
+            buttons =  <div><button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
+            Page {this.state.page} of {noOfPages}
+            <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button></div>;
+          }
+        
         }
       }
       

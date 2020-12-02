@@ -58,9 +58,12 @@ class Author extends React.Component{
                     <p><span>Abstract: </span>{details.abstract}</p>
                 </div>
             ))
-            buttons =  <div><button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
-            Page {this.state.page} of {noOfPages}
-            <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button></div>;
+            if(this.state.data.length > this.state.pageSize){
+                buttons =  <div><button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
+                Page {this.state.page} of {noOfPages}
+                <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button></div>;
+            }
+         
         }
         return(
             <div>
