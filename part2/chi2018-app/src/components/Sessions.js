@@ -29,7 +29,6 @@ class Sessions extends React.Component{
         if (this.state.display && this.state.data.length > 0) {
           sessioninfo = this.state.data.map( (details, i) => (
             <div key={i} value={details.sessionId}>
-              <p>Session: {details.sessionname} Room: {details.room} Type: {details.type} Chair: {details.chair}</p>
               <SessionContent key={i} details={details}></SessionContent>
             </div>
           ))

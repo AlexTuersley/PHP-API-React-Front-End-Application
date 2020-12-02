@@ -1,5 +1,6 @@
 import React from 'react';
 import ContentAuthor from './ContentAuthor';
+import { FaAward,FaNewspaper } from "react-icons/fa";
 
 class SessionContent extends React.Component {
     state = {
@@ -27,23 +28,28 @@ class SessionContent extends React.Component {
       render() {
         let sessioncontent = "";
         if (this.state.display) {
-          sessioncontent = this.state.data.map((details, i) => (
-            <div key={i} value={details.contentId}>
-              <p onClick={this.handleFurtherContentClick}>Title: {details.title} Award: {details.award}</p>
-              <p>Abstract: {details.abstract}</p>
-              <ContentAuthor contentId={details.contentId}></ContentAuthor>
-            </div>
-          ));
+          if(this.state.data.length > 0){
+            sessioncontent = this.state.data.map((details, i) => (
+              <div className="AuthorInfo" key={i} value={details.contentId}>
+                <p><span>Title: </span>{details.title} {details.award ==="HONORABLE_MENTION" ? <span title="Honourable Mention"><FaNewspaper/></span> : <span></span>}
+                {details.award ==="BEST_PAPER" ? <span title="Best Paper"><FaAward/></span> : <span></span>}</p> 
+                <p><span>Abstract:</span> {details.abstract}</p>
+                <ContentAuthor contentId={details.contentId}></ContentAuthor>
+              </div>
+            ));
+          }
+          else{
+            sessioncontent = <p>There is no Content for this Session</p>;
+          }
         }
       
      
         return (
           <div>
-            <h5 onClick={this.handleContentClick}>Content</h5>
+            <h5 onClick={this.handleContentClick}>  <p className="session">Session: {this.props.details.sessionname} Room: {this.props.details.room} Type: {this.props.details.type} Chair: {this.props.details.chair}</p></h5>
             {sessioncontent}
           </div>
         );
       }  
 }
-
 export default SessionContent;

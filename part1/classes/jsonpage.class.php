@@ -31,10 +31,9 @@ class JSONpage {
                   $this->page = $this->json_schedule();
                 }
             }
-            elseif($pathArr[1] == "content"){
-              //content
+            elseif($pathArr[1] === "content"){
               if(isset($pathArr[2])){
-                  if($pathArr[2] == "session"){
+                  if($pathArr[2] === "session"){
                     if(isset($pathArr[3]) && is_numeric($pathArr[3])){
                       $this->page = $this->json_content(0,$pathArr[3]);
                     }
@@ -53,12 +52,12 @@ class JSONpage {
                 $this->page = $this->json_content();
               }
             }
-            elseif($pathArr[1] == "sessions"){
+            elseif($pathArr[1] === "sessions"){
               $this->page = $this->json_sessions();
             }
-            elseif($pathArr[1] == "authors"){
+            elseif($pathArr[1] === "authors"){
                 if(isset($pathArr[2])){
-                  if($pathArr[2] == "content"){
+                  if($pathArr[2] === "content"){
                     if(isset($pathArr[3]) && is_numeric($pathArr[3])){
                       $this->page = $this->json_authors(0,$pathArr[3]);
                     }
@@ -79,10 +78,10 @@ class JSONpage {
                 }
                 
             }
-            elseif($pathArr[1] == "update"){
+            elseif($pathArr[1] === "update"){
               $this->page = $this->json_update();
             }
-            elseif($pathArr[1] == "login"){
+            elseif($pathArr[1] === "login"){
               $this->page = $this->json_login();
             }
           
@@ -110,7 +109,8 @@ class JSONpage {
    * @return JSON data about the api in JSON format
    */
   private function json_api(){
-      $api = array("message"=>"Welcome",
+      $api = array("status" => 200,
+                   "message"=>"Welcome",
                    "author"=>"Alex Tuersley",
                     "api"=> array("/api" => "returns api endpoints and basic info",
                                   "/api/schedule" => "returns the days of the schedule",
@@ -194,6 +194,7 @@ class JSONpage {
           $query = "SELECT DISTINCT content_authors.contentId, content.title, content.abstract, sessions.name as sessionname, 
           (SELECT name FROM rooms WHERE rooms.roomId = sessions.roomId) as room,
           (SELECT name FROM session_types WHERE session_types.typeId = sessions.typeId) as sessiontype,
+          (SELECT award FROM content WHERE content.contentId = content_authors.contentId) as award,
           slots.dayString,
           slots.startHour,
           slots.startMinute,
@@ -208,7 +209,7 @@ class JSONpage {
           $authorId = $this->sanitiseNum($id);
           $params = ["authorid" => $authorId];
       }
-      elseif($contentId && is_numeric($contentId)){
+      elseif($contentId){
         $query = "SELECT authors.name as authorName,authorInst FROM authors 
         JOIN content_authors ON authors.authorId = content_authors.authorId
         WHERE content_authors.contentId = :contentId";
@@ -217,7 +218,6 @@ class JSONpage {
 
       }
       else{
-        
           $query = "SELECT DISTINCT authors.authorId, authors.name as authorName, authorInst FROM authors
           INNER JOIN content_authors ON authors.authorId = content_authors.authorId
           ";
@@ -281,8 +281,7 @@ class JSONpage {
     }
     if (is_null($input->sessionname) || is_null($input->sessionId)) {  
       return json_encode(array("status" => 400, "message" => "Invalid request"));
-    }
-  
+    }   
     try {
       //get the admin status of the decoded token and if its true update session name if not return 401
       $tokenDecoded = \Firebase\JWT\JWT::decode($input->token, JWTKEY, array('HS256'));
@@ -290,11 +289,21 @@ class JSONpage {
     catch (UnexpectedValueException $e) {        
       return json_encode(array("status" => 401, "message" => $e->getMessage()));
     }
-  
-    $query  = "UPDATE sessions SET name = :sessionname WHERE sessionId = :sessionId";
-    $params = ["sessionname" => $input->sessionname, "sessionId" => $input->sessionId];
-    $res = $this->recordset->getJSONRecordSet($query, $params);    
-    return json_encode(array("status" => 200, "message" => "ok", "token" => $tokenDecoded));
+    if($tokenDecoded->exp > time()){
+      if($tokenDecoded->admin > 0){
+          $query  = "UPDATE sessions SET name = :sessionname WHERE sessionId = :sessionId";
+          $params = ["sessionname" => $input->sessionname, "sessionId" => $input->sessionId];
+          $res = $this->recordset->getJSONRecordSet($query, $params);    
+          return json_encode(array("status" => 200, "message" => "Update Successful"));
+      }
+      else{
+        return json_encode(array("status" => 401, "message" => "Not Authorised")); 
+      }
+    
+    }
+    else{
+      return json_encode(array("status" => 401, "message" => "Session Expired"));
+    } 
   }
   /**
    * function gets php input and checks the database to see if the user exists

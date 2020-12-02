@@ -22,7 +22,7 @@ class ContentAuthor extends React.Component{
              authorList += details.authorName +" "
         ))
         return(
-            <p>Authors: {authorList}</p>
+            <p><span>Authors:</span> {authorList}</p>
         );
     }
 

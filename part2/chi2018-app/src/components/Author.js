@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaAward,FaNewspaper } from "react-icons/fa";
 
 class Author extends React.Component{
     
@@ -29,10 +30,13 @@ class Author extends React.Component{
         let authorInfo = "";
         if(this.state.display){
             authorInfo = this.state.data.map((details, i) => (
-                <div key ={i}>
-                    <p>Title: {details.title} Session: {details.sessionname} Type: {details.sessiontype} Room: {details.room}</p>
-                    <p>Day: {details.dayString} Start: {details.startHour}:{details.startMinute} End: {details.endHour}:{details.endMinute}</p>
-                    <p>Abstract: {details.abstract}</p>
+                <div className="AuthorInfo" key ={i}>
+                    <p><span>Title: </span>{details.title} {details.award ==="HONORABLE_MENTION" ? <span title="Honourable Mention"><FaNewspaper/></span> : <span></span>}
+                {details.award ==="BEST_PAPER" ? <span title="Best Paper"><FaAward/></span> : <span></span>}</p>
+                    <p><span>Session: </span>{details.sessionname}</p>
+                    <p> <span>Type: </span>{details.sessiontype} <span>Room: </span>{details.room}</p>
+                    <p><span>Day: </span>{details.dayString} <span>Time: </span>{details.startHour}:{details.startMinute}{details.startMinute === "0" ? "0":""} <span>-</span>{details.endHour}:{details.endMinute}{details.endMinute === "0" ? "0":""}</p>
+                    <p><span>Abstract: </span>{details.abstract}</p>
                 </div>
             ))
         }

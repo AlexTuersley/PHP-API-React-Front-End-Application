@@ -12,7 +12,7 @@ function exceptionHandler($e) {
   header("Access-Control-Allow-Origin: *"); 
   header("Content-Type: application/json; charset=UTF-8"); 
   header("Access-Control-Allow-Methods: GET, POST");
-  echo json_encode($msg);
+  echo json_encode($usr_msg);
   logError($msg);
 }
 
@@ -21,7 +21,7 @@ function exceptionHandler($e) {
 */
 function errorHandler($errno, $errstr, $errfile, $errline) {
   if ($errno != 2 && $errno != 8) {
-    throw new Exception("Fatal Error Detected: [$errno] Internal Server Error", 1);
+    throw new Exception("Fatal Error Detected: 500 Internal Server Error", 1);
     logError("Fatal Error Detected: [$errno] $errstr line: $errline");
   }
   else{

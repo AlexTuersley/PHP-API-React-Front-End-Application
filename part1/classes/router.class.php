@@ -19,7 +19,7 @@ class Router {
 
    $path = str_replace(BASEPATH,"",$path);
    $pathArr = explode('/',$path);
-   $path = (empty($pathArr[0])) ? "main" : $pathArr[0];
+   $path = (empty($pathArr[0])) ? "home" : $pathArr[0];
 
    ($path == "api") 
      ? $this->api_route($pathArr, $recordset) 

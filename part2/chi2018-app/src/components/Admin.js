@@ -67,9 +67,6 @@ handleEmail = (e) => {
 
 handleUpdateClick = (sessionId, sessionname) => {
   const url = "http://localhost/WebAssignment/part1/api/update"
-  console.log(sessionId);
-  console.log(sessionname);
-  console.log(localStorage.getItem('myToken'));
   if (localStorage.getItem('myToken')) {
     let myToken = localStorage.getItem('myToken')
     let myJSON = {
@@ -87,7 +84,8 @@ render() {
   let page = <Login handleLoginClick={this.handleLoginClick} email={this.state.email} password={this.props.password} handleEmail={this.handleEmail} handlePassword={this.handlePassword}/>
   if (this.state.authenticated) {
     page = <div>
-            <button onClick={this.handleLogoutClick}>Log out</button>
+            <div><button onClick={this.handleLogoutClick}>Log out</button></div>
+            
             <Update handleUpdateClick={this.handleUpdateClick} />             
            </div>
   }
