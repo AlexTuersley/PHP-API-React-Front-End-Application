@@ -35,11 +35,11 @@ class Author extends React.Component{
         if(this.state.display){
             authorInfo = this.state.data.map((details, i) => (
                 <div className="AuthorInfo" key ={i}>
-                    <p><span>Title: </span>{details.title} {details.award ==="HONORABLE_MENTION" ? <span title="Honourable Mention"><FaNewspaper/></span> : <span></span>}
-                {details.award ==="BEST_PAPER" ? <span title="Best Paper"><FaAward/></span> : <span></span>}</p>
-                    <p><span>Session: </span>{details.sessionname}</p>
-                    <p> <span>Type: </span>{details.sessiontype} <span>Room: </span>{details.room}</p>
-                    <p><span>Day: </span>{details.dayString} <span>Time: </span>{details.startHour}:{details.startMinute}{details.startMinute === "0" ? "0":""} <span>-</span>{details.endHour}:{details.endMinute}{details.endMinute === "0" ? "0":""}</p>
+                    <p><span>Title: </span>{details.title} {details.award ==="HONORABLE_MENTION" ? <span title="Honourable Mention"><FaNewspaper/></span> : ""}
+                {details.award ==="BEST_PAPER" ? <span title="Best Paper"><FaAward/></span> : ""}</p>
+                    <p><span>Session: {details.sessionname}</span></p>
+                    <p><span>Type: {details.sessiontype}</span> <span>Room: {details.room}</span></p>
+                    <p><span>Day: {details.dayString}</span> <span>Time:{details.startHour}:{details.startMinute}{details.startMinute === "0" ? "0":""} -{details.endHour}:{details.endMinute}{details.endMinute === "0" ? "0":""}</span></p>
                     <p><span>Abstract: </span>{details.abstract}</p>
                 </div>
             ))

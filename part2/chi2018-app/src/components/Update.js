@@ -65,7 +65,8 @@ class Update extends React.Component {
           <div>
             <Search query={this.state.query} handleSearch={this.handleSearch}/>
             {filteredData.slice(((this.state.pageSize*this.state.page)-this.state.pageSize),(this.state.pageSize*this.state.page))
-            .map((details,i) => (<UpdateItem key={i} details={details} handleUpdateClick={this.props.handleUpdateClick}/>))}
+            .map((details,i) => (
+            <UpdateItem key={i} details={details} handleUpdateClick={this.props.handleUpdateClick}/>))}
             <button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
                     Page {this.state.page} of {noOfPages}
             <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button>
