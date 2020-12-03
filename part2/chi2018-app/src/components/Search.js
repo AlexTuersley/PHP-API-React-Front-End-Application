@@ -11,7 +11,7 @@ class Search extends React.Component {
      <div>
           <input id="search" type='text' placeholder='search' value={this.props.query} onChange={this.props.handleSearch} />
      </div>
-   )
+   );
  }       
 }
 

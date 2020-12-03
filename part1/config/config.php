@@ -3,6 +3,7 @@
 * This file handles errors and sets the paths to different files and routes based on .ini files
 * @author Alex Tuersley
 */
+
 /**
  * This function handles exceptions, logging the detailed exception to a file and displaying a basic message to the user
  */
@@ -22,24 +23,20 @@ function exceptionHandler($e) {
 function errorHandler($errno, $errstr, $errfile, $errline) {
   if ($errno != 2 && $errno != 8) {
     throw new Exception("Fatal Error Detected: 500 Internal Server Error", 1);
-    logError("Fatal Error Detected: [$errno] $errstr line: $errline");
+    logError("Fatal Error Detected: [$errno] $errstr line: $errline file: $errfile");
   }
   else{
-    logError("Fatal Error Detected: [$errno] $errstr line: $errline");
+    logError("Fatal Error Detected: [$errno] $errstr line: $errline file: $errfile");
   }
 }
 set_error_handler('errorHandler');
 set_exception_handler('exceptionHandler');
 
-//parses the ini files for the config and routes
 $ini['routes'] = parse_ini_file("routes.ini",true);
 $ini['main'] = parse_ini_file("config.ini",true);
 
-//define the basepath for the page
 define('BASEPATH', $ini['main']['paths']['basepath']);
-//define the path to the css file
 define('CSSPATH', $ini['main']['paths']['css']);
-//defines the key used in the JSON Web Token encoding
 define('JWTKEY', $ini['main']['keys']['jwt']);
 
 foreach (array_keys($ini['routes']) as $menuitem) {
@@ -48,7 +45,7 @@ foreach (array_keys($ini['routes']) as $menuitem) {
 define('MENU', $menu);
 
 /**
- * Loops through the classes folder and includes all php files in the page
+ * Loops through the classes folder and subfolders and includes all php files in the page with the name .class.php
  */
 function autoloadClasses($className) {
    $filename = "classes\\" . strtolower($className) . ".class.php";
@@ -61,8 +58,6 @@ function autoloadClasses($className) {
 
 }
 
-
-
 /**
  * @param $Error - an error passed from one of the handlers with information on what error has been triggered
  * This function writes the error passed to it to an error log file which is stored on the server
@@ -74,7 +69,6 @@ function logError($Error){
   fwrite($fileHandle, "$errorMsg\r\n");
   fclose($fileHandle);
 }
-
 
 spl_autoload_register("autoloadClasses");
 

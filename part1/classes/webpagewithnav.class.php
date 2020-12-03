@@ -4,7 +4,7 @@
 * @author Alex Tuersley
 */
 class WebPageWithNav extends WebPage {
- //Class variables
+ 
  private $nav;
  private $navItems;
 
@@ -16,8 +16,8 @@ class WebPageWithNav extends WebPage {
    $this->set_nav();
    $nav = $this->nav;
    $this->header = <<<HEADER
-<header>
-<h1>$pageHeading1</h1>
+  <header>
+  <h1>$pageHeading1</h1>
 $nav
 </header>
 HEADER;

@@ -26,7 +26,7 @@ class Sessions extends React.Component{
           }
         );
       }    
-      handleSessionClick = (e) => {
+      handleSessionClick = () => {
         this.setState({display:!this.state.display})
         this.loadSessionDetails()
       }  
@@ -42,9 +42,10 @@ class Sessions extends React.Component{
         let sessioninfo = ''
         let buttons = ''
         let noOfPages = Math.ceil(this.state.data.length/this.state.pageSize);
-        if (noOfPages === 0) {noOfPages=1}
         let disabledPrevious = (this.state.page <= 1);
         let disabledNext = (this.state.page >= noOfPages);
+
+        if (noOfPages === 0) {noOfPages=1}
         if (this.state.display && this.state.data.length > 0) {
           sessioninfo = this.state.data
           .slice(((this.state.pageSize*this.state.page)-this.state.pageSize),(this.state.pageSize*this.state.page))
@@ -58,10 +59,9 @@ class Sessions extends React.Component{
             Page {this.state.page} of {noOfPages}
             <button onClick={this.handleNextClick} disabled={disabledNext}>Next</button></div>;
           }
-        
         }
-          return (
 
+        return (
             <div key={this.props.details.slotId}>
               <h4 onClick={this.handleSessionClick}>Time: {this.props.details.startHour}:{this.props.details.startMinute}{this.props.details.startMinute === "0" ? "0":""}-{this.props.details.endHour}:{this.props.details.endMinute}{this.props.details.endMinute === "0" ? "0":""} Type: {this.props.details.type}</h4>
               {sessioninfo}

@@ -1,12 +1,10 @@
 <?php
 /**
 * Creates an HTML webpage using the given params
-* 
 * @author Alex Tuersley
-* 
 */
 abstract class WebPage {
- //Class variables
+
  private $main; 
  private $pageStart;
  protected $header; 
@@ -15,12 +13,10 @@ abstract class WebPage {
  private $pageEnd;
 
  /**
- *
  * @param $pageTitle - A string to appear as web page title
  * @param $css - link for a css file
  * @param $pageHeading1 - a string to appear as an <h1>
  * @param $footerText - footer text should include any html tags
- *
  */
  public function __construct($pageTitle, $pageHeading1, $footerText) {
    $this->main = "";

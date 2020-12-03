@@ -1,26 +1,25 @@
 <?php
 /**
 * Creates a JSON page based on the URL path 
-* 
 * @author Alex Tuersley
-* 
 */
 class JSONpage {
-  //Class Variables
+
   private $page; 
   private $recordset;
 
   /**
+  * Based on the $pathArr variable passed through different functions are called to grab and return JSON data 
   * @param $pathArr - an array containing the route information
   * @param $recordset - The database used for the queries
   */
   public function __construct($pathArr, $recordset) {
     $this->recordset = $recordset;
-    if($pathArr[0] == "api"){
+    if($pathArr[0] === "api"){
         if(isset($pathArr[1])){
-            if($pathArr[1] == "schedule"){
+            if($pathArr[1] === "schedule"){
                 if(isset($pathArr[2])){
-                  if($pathArr[2] == "times"){
+                  if($pathArr[2] === "times"){
                     $this->page = $this->json_schedule(0,$pathArr[2]);
                   }
                   else{
@@ -84,7 +83,9 @@ class JSONpage {
             elseif($pathArr[1] === "login"){
               $this->page = $this->json_login();
             }
-          
+            else{
+              $this->page = $this->json_error();
+            }          
         }
         else{
           $this->page = $this->json_api();
@@ -96,11 +97,20 @@ class JSONpage {
 
   }
 
-  //a max length of 50 is set as names will not be longer than this
+  /**
+   * Function gets a string and filters any uncessary character out
+   * @param string $x
+   * @return string filter string x of an potentially harmful characters and trim any whitespace
+   */
   private function sanitiseString($x) {
     return substr(trim(filter_var($x, FILTER_SANITIZE_STRING)), 0, 50);
   }
-  //sanitise an integer
+
+  /**
+   * Function sanitises an Interger passed to it
+   * @param int $x
+   * @return int validate the $x variable and return it out of the function
+   */
   private function sanitiseNum($x) {
     return filter_var($x, FILTER_VALIDATE_INT);
   }
@@ -114,18 +124,19 @@ class JSONpage {
                    "author"=>"Alex Tuersley",
                     "api"=> array("/api" => "returns api endpoints and basic info",
                                   "/api/schedule" => "returns the days of the schedule",
-                                  "/api/schedule/times?day=:int" => "returns the time slots of the schedule",
-                                  "/api/schedule/slotid" => array("returns" => "All sessions within a time slot along with some information about them", "slotid"=>"id of a time slot"),
-                                  "/api/sessions" => "returns all sessions in the database along with their name and some other information",
-                                  "/api/authors" => "lists all authors",
-                                  "/api/authors?search=name" => "searches for users with a name",
-                                  "/api/authors/id" => array("returns"=>"an author with all the presentations they are in and other info","id"=>"id of an author in the database"),
+                                  "/api/schedule/times" => "returns all time slots within the database",  
+                                  "/api/schedule/times?day=:int" => array("return" => "returns the time slots of the schedule", ":int" => "an integer with the value of dayString used to get all times for a specific day"),
+                                  "/api/schedule/slotid" => array("return" => "All sessions within a time slot along with some information about them", "slotid"=>"id of a time slot"),
+                                  "/api/sessions" => "return all sessions in the database along with their name and some other information",
+                                  "/api/authors" => "return all authors",
+                                  "/api/authors?search=name" => "searches for users with a name and return results",
+                                  "/api/authors/id" => array("return"=>"an author with all the presentations they are in and other info","id"=>"id of an author in the database"),
                                   "/api/content" => "returns all the content",
-                                  "/api/content/contentid" => array("returns"=>"Detailed information about the content such as title, authors, time and room","contentd"=>"id of the content"),
+                                  "/api/content/contentid" => array("return"=>"Detailed information about the content such as title, authors, time and room","contentd"=>"id of the content"),
                                   "/api/content?search=name" => "searches for content abstract or title with the name",
-                                  "/api/content/session/sessionId" => array("returns" => "All content associated with a session along with some information", "sessionId" => "id of a session"),
-                                  "/api/login" => array("returns" => "a JSON Web Token if the login is successful", "requires" => "email and password from a form"),
-                                  "/api/update" => array("returns" => "updates the title of a session id the JSON Web Token used is correct", "requires" => "JSON Web Token and the updated title of the session")
+                                  "/api/content/session/sessionId" => array("return" => "All content associated with a session along with some information", "sessionId" => "id of a session"),
+                                  "/api/login" => array("return" => "a JSON Web Token if the login is successful", "authentication" => "email and password from a form"),
+                                  "/api/update" => array("return" => "updates the title of a session id the JSON Web Token used is correct", "authentication" => "JSON Web Token and the updated title of the session")
                                   ));
       return json_encode($api);
   } 
@@ -150,6 +161,12 @@ class JSONpage {
       WHERE sessions.slotId = :slot";
       $slot = $this->sanitiseNum($slot);
       $params = ["slot" => $slot];
+      if (isset($_REQUEST['page']) && is_numeric($_REQUEST['page'])) {
+        $query .= " ORDER BY sessionname";
+        $query .= " LIMIT 10 ";
+        $query .= " OFFSET ";
+        $query .= 10 * ($this->sanitiseNum($_REQUEST['page'])-1);
+      }
     }
     elseif($times){
       if(isset($_REQUEST['day']) && is_numeric($_REQUEST['day'])) {
@@ -166,6 +183,7 @@ class JSONpage {
     }
     return ($this->recordset->getJSONRecordSet($query, $params));
   }
+
    /**
    * function for sessions
    * @return JSON data based on the query results
@@ -183,14 +201,15 @@ class JSONpage {
     $params = [];
     return ($this->recordset->getJSONRecordSet($query, $params));
   }
+
   /**
    * function for author queries
    * @param $id is the id of an author that has been selected 
    * if a search has been run the searched name is grabbed from the url and runs a different query
    * @return JSON data based on query results 
    */ 
-  private function json_authors($id = 0,$contentId = 0){
-      if($id > 0){ 
+  private function json_authors($authorId = 0,$contentId = 0){
+      if($authorId > 0){ 
           $query = "SELECT DISTINCT content_authors.contentId, content.title, content.abstract, sessions.name as sessionname, 
           (SELECT name FROM rooms WHERE rooms.roomId = sessions.roomId) as room,
           (SELECT name FROM session_types WHERE session_types.typeId = sessions.typeId) as sessiontype,
@@ -206,15 +225,22 @@ class JSONpage {
           JOIN sessions ON sessions_content.sessionId = sessions.sessionId
           JOIN slots ON sessions.slotId = slots.slotId
           WHERE content_authors.authorId = :authorid";
-          $authorId = $this->sanitiseNum($id);
+          $authorId = $this->sanitiseNum($authorId);
           $params = ["authorid" => $authorId];
+
+          if (isset($_REQUEST['page']) && is_numeric($_REQUEST['page'])) {
+            $query .= " ORDER BY content.title";
+            $query .= " LIMIT 10 ";
+            $query .= " OFFSET ";
+            $query .= 10 * ($this->sanitiseNum($_REQUEST['page'])-1);
+          }
       }
       elseif($contentId){
-        $query = "SELECT authors.name as authorName,authorInst FROM authors 
-        JOIN content_authors ON authors.authorId = content_authors.authorId
-        WHERE content_authors.contentId = :contentId";
-        $contentId = $this->sanitiseNum($contentId);
-        $params = ["contentId" => $contentId];
+          $query = "SELECT authors.name as authorName,authorInst FROM authors 
+          JOIN content_authors ON authors.authorId = content_authors.authorId
+          WHERE content_authors.contentId = :contentId";
+          $contentId = $this->sanitiseNum($contentId);
+          $params = ["contentId" => $contentId];
 
       }
       else{
@@ -227,17 +253,24 @@ class JSONpage {
             $name = str_replace("%20"," ", $_REQUEST['search']);
             $name = $this->sanitiseString("%".$name."%");
             $params = ["authorname" => $name];
-          }        
+          }    
+          elseif (isset($_REQUEST['page']) && is_numeric($_REQUEST['page'])) {
+            $query .= " ORDER BY authors.name";
+            $query .= " LIMIT 10 ";
+            $query .= " OFFSET ";
+            $query .= 10 * ($this->sanitiseNum($_REQUEST['page'])-1);
+          }    
       }
       return ($this->recordset->getJSONRecordSet($query, $params));
   }
+
   /**
    * function for content
    * @param $id - the id of some content which is used to gather further information about it
    * @return JSON data based on query results
    */
-  private function json_content($id = 0,$sessionId = 0){
-      if($id > 0){
+  private function json_content($contentId = 0,$sessionId = 0){
+      if($contentId > 0){
         $query = "SELECT content.title, content.abstract, content.award, sessions.slotId, session_types.name, sessions.name, slots.startHour, slots.startMinute, slots.endHour, slots.endMinute, slots.dayString, authors.name as author, content_authors.authorInst FROM content
         JOIN content_authors ON content_authors.contentId = content.contentId
         JOIN authors ON authors.authorId = content_authors.authorId
@@ -247,8 +280,8 @@ class JSONpage {
         JOIN session_types ON sessions.typeId = session_types.typeId
         WHERE content.contentId = :id
         ORDER BY sessions.slotId";
-        $id = $this->sanitiseNum($id);
-        $params = ["id" => $id];
+        $contentId = $this->sanitiseNum($contentId);
+        $params = ["id" => $contentId];
       }
       elseif($sessionId){
           $query = "SELECT content.contentId, title,abstract,award FROM content 
@@ -266,49 +299,20 @@ class JSONpage {
           $content = $this->sanitiseString("%".$content."%");
           $params = ["content" => $content];
         }   
+        elseif (isset($_REQUEST['page']) && is_numeric($_REQUEST['page'])) {
+          $query .= " ORDER BY content.title";
+          $query .= " LIMIT 10 ";
+          $query .= " OFFSET ";
+          $query .= 10 * ($this->sanitiseNum($_REQUEST['page'])-1);
+        }
       }
       return ($this->recordset->getJSONRecordSet($query, $params));
   }
-  /**
-   * function gets php input decodes the token passed through and updates a title if the token is authorised
-   * @return JSON message with query status
-   */
-  private function json_update() {
-    $input = json_decode(file_get_contents("php://input"));
-  
-    if (is_null($input->token)) {
-      return json_encode(array("status" => 401, "message" => "Not authorised"));
-    }
-    if (is_null($input->sessionname) || is_null($input->sessionId)) {  
-      return json_encode(array("status" => 400, "message" => "Invalid request"));
-    }   
-    try {
-      //get the admin status of the decoded token and if its true update session name if not return 401
-      $tokenDecoded = \Firebase\JWT\JWT::decode($input->token, JWTKEY, array('HS256'));
-    }
-    catch (UnexpectedValueException $e) {        
-      return json_encode(array("status" => 401, "message" => $e->getMessage()));
-    }
-    if($tokenDecoded->exp > time()){
-      if($tokenDecoded->admin > 0){
-          $query  = "UPDATE sessions SET name = :sessionname WHERE sessionId = :sessionId";
-          $params = ["sessionname" => $input->sessionname, "sessionId" => $input->sessionId];
-          $res = $this->recordset->getJSONRecordSet($query, $params);    
-          return json_encode(array("status" => 200, "message" => "Update Successful"));
-      }
-      else{
-        return json_encode(array("status" => 401, "message" => "Not Authorised")); 
-      }
-    
-    }
-    else{
-      return json_encode(array("status" => 401, "message" => "Session Expired"));
-    } 
-  }
+
   /**
    * function gets php input and checks the database to see if the user exists
    * @return JSON Web token if the user credentials are correct, status of query and welcome message if successful
-  */
+   */
   private function json_login() {
     $msg = "Invalid request. Username and password required";
     $status = 400;
@@ -342,9 +346,42 @@ class JSONpage {
   }
 
   /**
-   * getter function for the page
-   * @return page
+   * function gets php input decodes the token passed through and updates a title if the token is authorised
+   * if authorisation fails the appropriate http status code is returned along with some information
+   * @return JSON message with query status
    */
+  private function json_update() {
+    $input = json_decode(file_get_contents("php://input"));
+  
+    if (is_null($input->token)) {
+      return json_encode(array("status" => 401, "message" => "Not authorised"));
+    }
+    if (is_null($input->sessionname) || is_null($input->sessionId)) {  
+      return json_encode(array("status" => 400, "message" => "Invalid request"));
+    }   
+    try {
+      $tokenDecoded = \Firebase\JWT\JWT::decode($input->token, JWTKEY, array('HS256'));
+    }
+    catch (UnexpectedValueException $e) {        
+      return json_encode(array("status" => 401, "message" => $e->getMessage()));
+    }
+    if($tokenDecoded->exp > time()){
+      if($tokenDecoded->admin > 0){
+          $query  = "UPDATE sessions SET name = :sessionname WHERE sessionId = :sessionId";
+          $params = ["sessionname" => $input->sessionname, "sessionId" => $input->sessionId];
+          $res = $this->recordset->getJSONRecordSet($query, $params);    
+          return json_encode(array("status" => 200, "message" => "Update Successful"));
+      }
+      else{
+        return json_encode(array("status" => 401, "message" => "Not Authorised")); 
+      }
+    
+    }
+    else{
+      return json_encode(array("status" => 401, "message" => "Session Expired"));
+    } 
+  }
+
   public function get_page() {
     return $this->page;
   }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaAward,FaNewspaper } from "react-icons/fa";
+import { FaAward,FaTrophy } from "react-icons/fa";
 /**
  * Gets all content associated with an author and displays detailed information about the content
  * 
@@ -25,7 +25,7 @@ class Author extends React.Component{
         }
         );
     }
-    handleAuthorClick = (e) => {
+    handleAuthorClick = () => {
         this.setState({display:!this.state.display})
         this.loadAuthorContent();
     }
@@ -43,21 +43,23 @@ class Author extends React.Component{
         let buttons = ""
         if(this.state.display){
             let noOfPages = Math.ceil(this.state.data.length/this.state.pageSize);
-            if (noOfPages === 0) {noOfPages=1}
             let disabledPrevious = (this.state.page <= 1);
             let disabledNext = (this.state.page >= noOfPages);
+
             authorInfo = this.state.data
             .slice(((this.state.pageSize*this.state.page)-this.state.pageSize),(this.state.pageSize*this.state.page))
             .map((details, i) => (
                 <div className="AuthorInfo" key ={i}>
-                    <p><span>Title: </span>{details.title} {details.award ==="HONORABLE_MENTION" ? <span title="Honourable Mention"><FaNewspaper/></span> : ""}
-                {details.award ==="BEST_PAPER" ? <span title="Best Paper"><FaAward/></span> : ""}</p>
+                    <p><span>Title: </span>{details.title} {details.award ==="HONORABLE_MENTION" ? <span title="Honourable Mention"><FaAward/></span> : ""}
+                {details.award ==="BEST_PAPER" ? <span title="Best Paper"><FaTrophy/></span> : ""}</p>
                     <p><span>Session: {details.sessionname}</span></p>
                     <p><span>Type: {details.sessiontype}</span> <span>Room: {details.room}</span></p>
                     <p><span>Day: {details.dayString}</span> <span>Time:{details.startHour}:{details.startMinute}{details.startMinute === "0" ? "0":""} -{details.endHour}:{details.endMinute}{details.endMinute === "0" ? "0":""}</span></p>
                     <p><span>Abstract: </span>{details.abstract}</p>
                 </div>
-            ))
+            ));
+
+            if (noOfPages === 0) {noOfPages=1}
             if(this.state.data.length > this.state.pageSize){
                 buttons =  <div><button onClick={this.handlePreviousClick} disabled={disabledPrevious}>Previous</button>
                 Page {this.state.page} of {noOfPages}

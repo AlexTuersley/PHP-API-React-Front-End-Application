@@ -9,7 +9,7 @@ class UpdateItem extends React.Component {
   state = {sessionname: this.props.details.sessionname, display:false}
 
   handleSessionChange = (e) => {
-  this.setState({sessionname:e.target.value})
+    this.setState({sessionname:e.target.value})
   }
   handleSessionClick = () => {
     this.setState({display:!this.state.display})
@@ -19,7 +19,7 @@ class UpdateItem extends React.Component {
   }
 
   render() {
-      let sessionInfo = "";
+    let sessionInfo = "";
     if(this.state.display){
         sessionInfo = <div className="item">
             <label>Name: <input value={this.state.sessionname} size="30" onChange={this.handleSessionChange} /></label>

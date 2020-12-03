@@ -24,7 +24,7 @@ class ContentAuthor extends React.Component{
         let authorList = "";
         let list = "";
         this.state.data.map((details, i) => (
-            i !== 0 ? authorList += ", "+details.authorName : authorList += details.authorName
+            i !== 0 ? authorList += ", "+ details.authorName : authorList += details.authorName
         ))
         if(authorList !== ""){
             list = <p><span>Authors:</span> {authorList}</p>;
