@@ -29,6 +29,18 @@ class Authors extends React.Component{
                 console.log("something went wrong ", err)
             }
             );
+    }
+    loadsearchDetails(query) {
+      const url = "http://localhost/WebAssignment/part1/api/authors?search=" + query
+          fetch(url)
+              .then( (response) => response.json())
+              .then((data) => {
+                  this.setState({data:data.data})
+              })
+              .catch ((err) => {
+                  console.log("something went wrong ", err)
+              }
+              );
       }
 
       handlePreviousClick = () => {
@@ -41,19 +53,13 @@ class Authors extends React.Component{
       
       handleSearch = (e) => {
         this.setState({page:1,query:e.target.value})
+        this.loadsearchDetails(e.target.value)
       }
-      
-      searchString = (s) => {
-        return s.toLowerCase().includes(this.state.query.toLowerCase())
-      }
-      
-      searchDetails = (details) => {
-        return ((this.searchString(details.authorName) || this.searchString(details.authorInst)))
-      }
+
       
       render() {
         let filteredData =  (
-          this.state.data.filter(this.searchDetails)
+          this.state.data
         )
         let noOfPages = Math.ceil(this.state.data.length/this.state.pageSize)
         let disabledPrevious = (this.state.page <= 1)
