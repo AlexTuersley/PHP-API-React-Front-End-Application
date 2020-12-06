@@ -8,7 +8,7 @@
  * This function handles exceptions, logging the detailed exception to a file and displaying a basic message to the user
  */
 function exceptionHandler($e) {
-  $msg = array("status" => "500", "message" => $e->getMessage(), "file" => $e->getFile(), "line" => $e->getLine());
+  $msg = "Exception Error Detected: ".$e->getMessage()." line: ".$e->getLine()." file: ".$e->getFile()."";
   $usr_msg = array("status" => "500", "message" => "Internal Server Error");
   header("Access-Control-Allow-Origin: *"); 
   header("Content-Type: application/json; charset=UTF-8"); 
@@ -38,11 +38,6 @@ $ini['main'] = parse_ini_file("config.ini",true);
 define('BASEPATH', $ini['main']['paths']['basepath']);
 define('CSSPATH', $ini['main']['paths']['css']);
 define('JWTKEY', $ini['main']['keys']['jwt']);
-
-foreach (array_keys($ini['routes']) as $menuitem) {
-  $menuitem == "error" ?: $menu[$menuitem] = $menuitem . "/";
-}
-define('MENU', $menu);
 
 /**
  * Loops through the classes folder and subfolders and includes all php files in the page with the name .class.php
