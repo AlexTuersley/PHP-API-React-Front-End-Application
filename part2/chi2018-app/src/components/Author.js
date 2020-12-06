@@ -14,7 +14,7 @@ class Author extends React.Component{
         pageSize:2
     }
     loadAuthorContent = () =>{
-        const url = "http://localhost/WebAssignment/part1/api/authors/" + this.props.details.authorId
+        const url = "http://unn-w17018264.newnumyspace.co.uk/KF6012/part1/api/authors/" + this.props.details.authorId
         fetch(url)
         .then( (response) => response.json() )
         .then( (data) => {

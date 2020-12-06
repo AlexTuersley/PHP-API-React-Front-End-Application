@@ -15,7 +15,7 @@ class Sessions extends React.Component{
       
       
       loadSessionDetails() {
-        const url = "http://localhost/WebAssignment/part1/api/schedule/" + this.props.details.slotId
+        const url = "http://unn-w17018264.newnumyspace.co.uk/KF6012/part1/api/schedule/" + this.props.details.slotId
         fetch(url)
           .then( (response) => response.json() )
           .then( (data) => {

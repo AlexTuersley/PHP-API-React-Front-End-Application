@@ -14,7 +14,7 @@ class Schedules extends React.Component{
     }
   }
     componentDidMount() {
-        const url = "http://localhost/WebAssignment/part1/api/schedule"
+        const url = "http://unn-w17018264.newnumyspace.co.uk/KF6012/part1/api/schedule"
         fetch(url)
           .then( (response) => response.json() )
           .then((data) => {

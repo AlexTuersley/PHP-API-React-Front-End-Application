@@ -9,7 +9,7 @@ class ContentAuthor extends React.Component{
         data:[]
     }
     componentDidMount(){
-        const url = "http://localhost/WebAssignment/part1/api/authors/content/" + this.props.contentId
+        const url = "http://unn-w17018264.newnumyspace.co.uk/KF6012/part1/api/authors/content/" + this.props.contentId
         fetch(url)
         .then( (response) => response.json() )
         .then( (data) => {

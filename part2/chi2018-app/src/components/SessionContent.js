@@ -15,7 +15,7 @@ class SessionContent extends React.Component {
     }
 
     loadSessionContentDetails = () => {
-        const url = "http://localhost/WebAssignment/part1/api/content/session/" + this.props.details.sessionId
+        const url = "http://unn-w17018264.newnumyspace.co.uk/KF6012/part1/api/content/session/" + this.props.details.sessionId
         fetch(url)
         .then( (response) => response.json() )
         .then( (data) => {

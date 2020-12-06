@@ -19,7 +19,7 @@ class Update extends React.Component {
         this.handleSearch = this.handleSearch.bind(this);
     }
     componentDidMount() {
-        const url = "http://localhost/WebAssignment/part1/api/sessions"
+        const url = "http://unn-w17018264.newnumyspace.co.uk/KF6012/part1/api/sessions"
         fetch(url)
         .then( (response) => response.json() )
         .then( (data) => {
